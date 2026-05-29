@@ -1,0 +1,6 @@
+# Nixpacks — Node 20 LTS para Railway
+[phases.setup]
+nixPkgs = ["nodejs_20"]
+
+[variables]
+NODE_ENV = "production"

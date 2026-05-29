@@ -1,0 +1,43 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --sidebar-width: 260px;
+  --color-orange: #ff6b00;
+  --color-nude: #f7e6da;
+  --color-rose: #e9c7b5;
+  --color-text: #222222;
+  --color-muted: #6b6b6b;
+  --color-bg: #f8f6f4;
+}
+
+body {
+  @apply bg-[var(--color-bg)] text-[var(--color-text)] antialiased;
+}
+
+@layer components {
+  .admin-card {
+    @apply rounded-2xl border border-black/[0.06] bg-white p-5 shadow-sm;
+  }
+
+  .admin-input {
+    @apply w-full rounded-xl border border-black/[0.08] bg-white px-3.5 py-2.5 text-sm outline-none transition-shadow focus:border-maia-orange/50 focus:ring-2 focus:ring-maia-orange/15;
+  }
+
+  .admin-label {
+    @apply mb-1.5 block font-medium text-xs text-[var(--color-muted)] uppercase tracking-wide;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-maia-orange px-4 py-2.5 text-sm font-semibold text-white transition-all hover:brightness-105 active:scale-[0.98] disabled:opacity-50;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-black/[0.08] bg-white px-4 py-2.5 text-sm font-medium transition-all hover:bg-maia-nude/40 active:scale-[0.98] disabled:opacity-50;
+  }
+
+  .btn-danger {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-red-50 px-4 py-2.5 text-sm font-medium text-red-600 transition-all hover:bg-red-100 active:scale-[0.98];
+  }
+}
