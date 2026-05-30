@@ -74,9 +74,13 @@ export const useFavoritesStore = create<FavoritesState>()(
     {
       name: "le-maia-favorites",
       version: 2,
-      migrate: (persisted) => ({
-        items: parsePersistedState(persisted),
-      }),
+      migrate: (persisted) => {
+        try {
+          return { items: parsePersistedState(persisted) };
+        } catch {
+          return { items: [] };
+        }
+      },
       partialize: (state) => ({
         items: sanitizeFavoriteItems(state.items),
       }),
@@ -86,5 +90,5 @@ export const useFavoritesStore = create<FavoritesState>()(
 
 /** Contagem para badge na navegação */
 export function useFavoriteCount() {
-  return useFavoritesStore((s) => sanitizeFavoriteItems(s.items).length);
+  return useFavoritesStore((s) => sanitizeFavoriteItems(s.items ?? []).length);
 }

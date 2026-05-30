@@ -1,119 +1,61 @@
 "use client";
 
 import Link from "next/link";
-import { AnimatePresence, motion } from "framer-motion";
-import { Heart, Sparkles } from "lucide-react";
+import { Heart } from "lucide-react";
+import { Button, Card, ProductCard, Typography, toast } from "@/design-system";
 import {
-  Button,
-  Card,
-  ProductCard,
-  Typography,
-  toast,
-  ScrollReveal,
-} from "@/design-system";
-import { fadeIn, slideUp, duration, easePremium } from "@/design-system/motion/config";
-import {
-  resolveFavoriteProducts,
+  favoriteItemToProduct,
   sanitizeFavoriteItems,
 } from "@/lib/favorites/helpers";
 import { ROUTES } from "@/lib/constants/routes";
 import { useFavoritesStore } from "@/store/useFavoritesStore";
 import { useCartStore } from "@/store/useCartStore";
-import { useEffect, useState } from "react";
+
+function selectFavoriteItems(state: { items?: unknown }) {
+  return sanitizeFavoriteItems(state.items ?? []);
+}
 
 export function FavoritesView() {
-  const [ready, setReady] = useState(false);
-  const items = useFavoritesStore((s) => sanitizeFavoriteItems(s.items));
-  const products = resolveFavoriteProducts(items);
+  const items = useFavoritesStore(selectFavoriteItems);
   const addItem = useCartStore((s) => s.addItem);
-
-  useEffect(() => {
-    const finish = () => setReady(true);
-    if (useFavoritesStore.persist.hasHydrated()) {
-      finish();
-      return;
-    }
-    return useFavoritesStore.persist.onFinishHydration(finish);
-  }, []);
-
-  if (!ready) {
-    return (
-      <div className="rounded-2xl bg-maia-nude/40 px-4 py-8 text-center text-sm text-maia-muted">
-        Carregando...
-      </div>
-    );
-  }
 
   if (items.length === 0) {
     return (
-      <ScrollReveal variant="slideUp">
-        <Card
-          variant="default"
-          padding="lg"
-          className="flex flex-col items-center text-center"
-        >
-          <motion.div
-            animate={{ scale: [1, 1.06, 1] }}
-            transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
-          >
-            <Heart
-              className="h-12 w-12 text-maia-rose"
-              strokeWidth={1.25}
-            />
-          </motion.div>
-          <Typography variant="body-sm" className="mt-4 text-maia-muted">
-            Você ainda não salvou nenhuma bolsa.
-          </Typography>
-          <Typography variant="caption" className="mt-1 text-maia-light">
-            Toque no coração nos produtos para guardar aqui.
-          </Typography>
-          <Link href={ROUTES.catalog} className="mt-6">
-            <Button variant="primary">Explorar catálogo</Button>
-          </Link>
-        </Card>
-      </ScrollReveal>
+      <Card
+        variant="default"
+        padding="lg"
+        className="flex flex-col items-center text-center"
+      >
+        <Heart className="h-12 w-12 text-maia-rose" strokeWidth={1.25} />
+        <Typography variant="body-sm" className="mt-4 text-maia-muted">
+          Você ainda não salvou nenhuma bolsa.
+        </Typography>
+        <Typography variant="caption" className="mt-1 text-maia-muted">
+          Toque no coração nos produtos para guardar aqui.
+        </Typography>
+        <Link href={ROUTES.catalog} className="mt-6 w-full max-w-xs">
+          <Button variant="primary" fullWidth>
+            Explorar catálogo
+          </Button>
+        </Link>
+      </Card>
     );
   }
 
   return (
     <div>
-      <motion.div
-        variants={fadeIn}
-        initial="hidden"
-        animate="visible"
-        transition={{ duration: duration.base, ease: easePremium }}
-        className="mb-5 flex items-center gap-2 rounded-2xl bg-gradient-to-r from-maia-nude/80 via-white to-maia-rose/40 px-4 py-3 ring-1 ring-maia-text/[0.04]"
-      >
-        <Sparkles className="h-4 w-4 shrink-0 text-maia-orange" />
-        <Typography variant="body-sm" className="text-maia-muted">
-          {items.length === 1
-            ? "1 peça na sua seleção"
-            : `${items.length} peças na sua seleção`}
-        </Typography>
-      </motion.div>
+      <p className="mb-5 rounded-2xl bg-maia-nude/60 px-4 py-3 text-sm text-maia-muted">
+        {items.length === 1
+          ? "1 peça na sua seleção"
+          : `${items.length} peças na sua seleção`}
+      </p>
 
-      <motion.ul
-        layout
-        className="product-grid"
-        role="list"
-        aria-label="Produtos favoritos"
-      >
-        <AnimatePresence mode="popLayout">
-          {products.map((product, index) => (
-            <motion.li
-              key={product.id}
-              layout
-              variants={slideUp}
-              initial="hidden"
-              animate="visible"
-              exit={{ opacity: 0, scale: 0.96, y: -8 }}
-              transition={{
-                duration: duration.base,
-                ease: easePremium,
-                delay: Math.min(index * 0.04, 0.2),
-              }}
-              className="list-none"
-            >
+      <ul className="product-grid" role="list" aria-label="Produtos favoritos">
+        {items.map((item, index) => {
+          const product = favoriteItemToProduct(item);
+
+          return (
+            <li key={item.productId} className="list-none">
               <ProductCard
                 id={product.id}
                 slug={product.slug}
@@ -128,10 +70,10 @@ export function FavoritesView() {
                   toast.success("Adicionado ao carrinho");
                 }}
               />
-            </motion.li>
-          ))}
-        </AnimatePresence>
-      </motion.ul>
+            </li>
+          );
+        })}
+      </ul>
     </div>
   );
 }
