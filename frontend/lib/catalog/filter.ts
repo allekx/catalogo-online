@@ -1,4 +1,5 @@
 import { PRODUCT_TYPES } from "./constants";
+import { categoryMatchesFilter } from "./slug";
 import type { CatalogFilters, CatalogSort } from "./types";
 import type { Product } from "@/lib/products/types";
 
@@ -56,7 +57,9 @@ export function filterProducts(
   let result = products.filter((p) => matchesQuery(p, filters.query));
 
   if (filters.category) {
-    result = result.filter((p) => p.category?.slug === filters.category);
+    result = result.filter((p) =>
+      categoryMatchesFilter(p.category, filters.category)
+    );
   }
 
   if (filters.priceMin != null) {

@@ -19,26 +19,27 @@ const CatalogFiltersSheet = dynamic(
 );
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 import {
-  CATALOG_CATEGORIES,
   filterProducts,
   filtersFromSearchParams,
   searchParamsFromFilters,
 } from "@/lib/catalog";
+import { useCatalogCategories } from "@/hooks/useCatalogCategories";
 import type { CatalogFilters } from "@/lib/catalog/types";
 import { DEFAULT_CATALOG_FILTERS } from "@/lib/catalog/types";
 import { fetchAllCatalogProducts } from "@/lib/products/fetch";
 import { ROUTES } from "@/lib/constants/routes";
 import type { Product } from "@/lib/products/types";
 
-function getPageTitle(filters: CatalogFilters, count: number): string {
+function getPageTitle(
+  filters: CatalogFilters,
+  count: number,
+  categoryName?: string
+): string {
   if (filters.query.trim()) {
     return `“${filters.query.trim()}”`;
   }
   if (filters.category) {
-    return (
-      CATALOG_CATEGORIES.find((c) => c.slug === filters.category)?.name ??
-      filters.category
-    );
+    return categoryName ?? filters.category;
   }
   return count > 0 ? "Catálogo" : "Catálogo";
 }
@@ -46,6 +47,7 @@ function getPageTitle(filters: CatalogFilters, count: number): string {
 export function CatalogView() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { categories, findBySlug } = useCatalogCategories();
 
   const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -134,7 +136,11 @@ export function CatalogView() {
     syncUrl(next);
   };
 
-  const title = getPageTitle(appliedFilters, filteredProducts.length);
+  const title = getPageTitle(
+    appliedFilters,
+    filteredProducts.length,
+    findBySlug(appliedFilters.category)?.name
+  );
   const subtitle =
     loading
       ? "Carregando coleção..."
@@ -164,6 +170,7 @@ export function CatalogView() {
         />
         <CatalogToolbar
           filters={{ ...filters, query: debouncedQuery }}
+          categories={categories}
           onOpenFilters={() => {
             setDraftFilters({ ...filters, query: debouncedQuery });
             setFiltersOpen(true);
@@ -224,6 +231,7 @@ export function CatalogView() {
       <CatalogFiltersSheet
         open={filtersOpen}
         onClose={() => setFiltersOpen(false)}
+        categories={categories}
         draft={{ ...draftFilters, query: debouncedQuery }}
         onChange={setDraftFilters}
         onApply={handleApplyFilters}

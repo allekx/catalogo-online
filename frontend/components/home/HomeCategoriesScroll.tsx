@@ -2,11 +2,23 @@
 
 import Link from "next/link";
 import { MotionPress, StaggerReveal, StaggerItem } from "@/design-system/motion";
-import { ROUTES } from "@/lib/constants/routes";
+import { useCatalogCategories } from "@/hooks/useCatalogCategories";
 import { HOME_CATEGORIES } from "@/lib/data/home";
+import { ROUTES } from "@/lib/constants/routes";
 import { cn } from "@/lib/utils/cn";
 
 export function HomeCategoriesScroll() {
+  const { categories: apiCategories } = useCatalogCategories();
+  const categories =
+    apiCategories.length > 0
+      ? apiCategories.map((c) => ({
+          slug: c.slug,
+          name: c.name,
+          icon: c.name.charAt(0).toUpperCase(),
+          color: "#F5E6E0",
+        }))
+      : HOME_CATEGORIES;
+
   return (
     <section className="mt-7" aria-labelledby="home-categories-title">
       <div className="mb-4 flex items-end justify-between px-0.5">
@@ -26,11 +38,11 @@ export function HomeCategoriesScroll() {
 
       <div className="scroll-touch-x -mx-4 px-4 pb-1 snap-x snap-mandatory sm:-mx-6 sm:px-6 lg:mx-0 lg:px-0">
         <StaggerReveal stagger={0.04} className="flex gap-4">
-          {HOME_CATEGORIES.map((cat) => (
+          {categories.map((cat) => (
             <StaggerItem key={cat.slug} className="snap-start shrink-0">
               <MotionPress as="span" hover>
                 <Link
-                  href={`${ROUTES.catalog}?categoria=${cat.slug}`}
+                  href={`${ROUTES.catalog}?categoria=${encodeURIComponent(cat.slug)}`}
                   className="group flex w-[4.5rem] flex-col items-center gap-2 sm:w-[5rem]"
                 >
                   <span

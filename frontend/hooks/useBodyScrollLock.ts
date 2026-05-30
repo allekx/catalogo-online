@@ -6,7 +6,13 @@ let lockCount = 0;
 
 function applyBodyScrollLock() {
   if (typeof document === "undefined") return;
-  document.body.style.overflow = lockCount > 0 ? "hidden" : "";
+  const locked = lockCount > 0;
+  document.documentElement.style.overflow = locked ? "hidden" : "";
+  document.body.style.overflow = locked ? "hidden" : "";
+  if (!locked) {
+    document.documentElement.style.position = "";
+    document.body.style.position = "";
+  }
 }
 
 /** Bloqueia rolagem do documento (modais, menus). Contador evita estado preso ao fechar vários overlays. */

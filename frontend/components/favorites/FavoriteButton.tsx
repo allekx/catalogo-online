@@ -43,6 +43,10 @@ export function FavoriteButton({
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    if (!product.id?.trim()) {
+      if (showToast) toast.warning("Não foi possível salvar este favorito");
+      return;
+    }
     const added = toggleFavorite(product);
     onToggle?.(added);
     if (showToast) {

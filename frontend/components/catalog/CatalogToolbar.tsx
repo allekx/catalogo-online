@@ -1,16 +1,14 @@
 "use client";
 
 import { SlidersHorizontal, X } from "lucide-react";
-import {
-  CATALOG_CATEGORIES,
-  SORT_OPTIONS,
-  countActiveFilters,
-} from "@/lib/catalog";
+import { SORT_OPTIONS, countActiveFilters } from "@/lib/catalog";
 import type { CatalogFilters, CatalogSort } from "@/lib/catalog/types";
+import type { CatalogCategoryOption } from "@/hooks/useCatalogCategories";
 import { cn } from "@/lib/utils/cn";
 
 interface CatalogToolbarProps {
   filters: CatalogFilters;
+  categories: CatalogCategoryOption[];
   onOpenFilters: () => void;
   onSortChange: (sort: CatalogSort) => void;
   onClearFilter: (key: "category" | "price" | "featured" | "new") => void;
@@ -18,6 +16,7 @@ interface CatalogToolbarProps {
 
 export function CatalogToolbar({
   filters,
+  categories,
   onOpenFilters,
   onSortChange,
   onClearFilter,
@@ -80,8 +79,8 @@ export function CatalogToolbar({
           {filters.category && (
             <FilterChip
               label={
-                CATALOG_CATEGORIES.find((c) => c.slug === filters.category)
-                  ?.name ?? filters.category
+                categories.find((c) => c.slug === filters.category)?.name ??
+                filters.category
               }
               onRemove={() => onClearFilter("category")}
             />

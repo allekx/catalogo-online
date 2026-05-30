@@ -5,9 +5,11 @@ import {
   favoriteItemToProduct,
   sanitizeFavoriteItems,
 } from "@/lib/favorites/helpers";
+import { useFavoritesHydrated } from "@/hooks/useFavoritesHydrated";
 import { useFavoritesStore } from "@/store/useFavoritesStore";
 import { useCartStore } from "@/store/useCartStore";
 import { FavoritesEmptyState } from "./FavoritesEmptyState";
+import { ProductGridSkeleton } from "@/design-system";
 
 function selectFavoriteItems(state: { items?: unknown }) {
   try {
@@ -18,8 +20,13 @@ function selectFavoriteItems(state: { items?: unknown }) {
 }
 
 export function FavoritesView() {
+  const hydrated = useFavoritesHydrated();
   const items = useFavoritesStore(selectFavoriteItems);
   const addItem = useCartStore((s) => s.addItem);
+
+  if (!hydrated) {
+    return <ProductGridSkeleton count={2} />;
+  }
 
   if (items.length === 0) {
     return <FavoritesEmptyState />;

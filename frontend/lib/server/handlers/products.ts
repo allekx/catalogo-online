@@ -6,12 +6,14 @@ import {
   productWithImagesInclude,
 } from "../db";
 import { serializeProduct } from "../serializers/product";
+import { slugify } from "../slug";
 import { apiError, cacheHeaders, json } from "../http";
 
 export async function listProducts(request: NextRequest) {
   try {
     const { searchParams } = request.nextUrl;
-    const categoria = searchParams.get("categoria");
+    const categoriaRaw = searchParams.get("categoria");
+    const categoria = categoriaRaw ? slugify(categoriaRaw) : null;
     const busca = searchParams.get("busca");
     const destaque = searchParams.get("destaque");
 

@@ -20,9 +20,33 @@ function clearSessionCookie() {
   document.cookie = `${ADMIN_COOKIE_NAME}=; path=/; max-age=0`;
 }
 
+function readTokenFromCookie(): string | null {
+  if (typeof document === "undefined") return null;
+  const escaped = ADMIN_COOKIE_NAME.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const match = document.cookie.match(
+    new RegExp(`(?:^|;\\s*)${escaped}=([^;]*)`)
+  );
+  if (!match?.[1]) return null;
+  try {
+    return decodeURIComponent(match[1]);
+  } catch {
+    return match[1];
+  }
+}
+
 export function getAdminToken(): string | null {
   if (typeof window === "undefined") return null;
-  return sessionStorage.getItem(TOKEN_KEY);
+
+  const fromStorage = sessionStorage.getItem(TOKEN_KEY);
+  if (fromStorage) return fromStorage;
+
+  const fromCookie = readTokenFromCookie();
+  if (fromCookie) {
+    sessionStorage.setItem(TOKEN_KEY, fromCookie);
+    return fromCookie;
+  }
+
+  return null;
 }
 
 export function setAdminToken(token: string) {

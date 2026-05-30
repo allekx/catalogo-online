@@ -36,7 +36,9 @@ body[data-cart-bar="true"] {
     @apply scroll-smooth antialiased;
     -webkit-tap-highlight-color: transparent;
     -webkit-text-size-adjust: 100%;
-    overflow-x: hidden;
+    overflow-x: clip;
+    overflow-y: auto;
+    height: auto;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -49,12 +51,13 @@ body[data-cart-bar="true"] {
     @apply bg-background font-body text-maia-text;
     color: var(--color-foreground);
     background-color: var(--color-background);
-    overscroll-behavior: none;
+    overscroll-behavior-y: auto;
     min-height: 100dvh;
     min-height: -webkit-fill-available;
-    overflow-x: hidden;
-    overflow-y: auto;
+    overflow-x: clip;
+    overflow-y: visible;
     touch-action: pan-y;
+    height: auto;
   }
 
   h1,
@@ -274,6 +277,8 @@ body[data-cart-bar="true"] {
   --sidebar-width: 260px;
   min-height: 100dvh;
   background: #f8f6f4;
+  overflow-y: auto;
+  overflow-x: clip;
 }
 
 .admin-shell {

@@ -2,18 +2,19 @@
 
 import { BottomSheet, Button } from "@/design-system";
 import {
-  CATALOG_CATEGORIES,
   PRICE_RANGES,
   SORT_OPTIONS,
   getPriceRangeId,
 } from "@/lib/catalog";
 import type { CatalogFilters } from "@/lib/catalog/types";
+import type { CatalogCategoryOption } from "@/hooks/useCatalogCategories";
 import { DEFAULT_CATALOG_FILTERS } from "@/lib/catalog/types";
 import { cn } from "@/lib/utils/cn";
 
 interface CatalogFiltersSheetProps {
   open: boolean;
   onClose: () => void;
+  categories: CatalogCategoryOption[];
   draft: CatalogFilters;
   onChange: (next: CatalogFilters) => void;
   onApply: () => void;
@@ -93,6 +94,7 @@ function Toggle({
 export function CatalogFiltersSheet({
   open,
   onClose,
+  categories,
   draft,
   onChange,
   onApply,
@@ -148,7 +150,7 @@ export function CatalogFiltersSheet({
             >
               Todas
             </Chip>
-            {CATALOG_CATEGORIES.map((cat) => (
+            {categories.map((cat) => (
               <Chip
                 key={cat.slug}
                 active={draft.category === cat.slug}
