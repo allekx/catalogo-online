@@ -75,7 +75,8 @@ Não é necessário `NEXT_PUBLIC_API_URL` em produção — a API usa o mesmo do
 ### Painel admin
 
 - URL: `https://seu-dominio.vercel.app/admin`
-- Login: `https://seu-dominio.vercel.app/admin/login`
+- Login: `https://seu-dominio.vercel.app/admin/login` (use este link; `/admin` sem login redireciona para o login)
+- Se aparecer “Você está offline” no admin: limpe dados do site no navegador ou abra em aba anônima após um novo deploy (cache do PWA antigo).
 - Proteção: cookie + middleware + header `x-admin-key`
 
 ## 4. Desenvolvimento local

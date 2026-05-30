@@ -95,7 +95,11 @@ const config = isDev
       workboxOptions: {
         disableDevLogs: true,
         navigateFallback: "/offline",
-        navigateFallbackDenylist: [/^\/api/, /^\/_next\/data/],
+        navigateFallbackDenylist: [
+          /^\/api/,
+          /^\/_next\/data/,
+          /^\/admin/,
+        ],
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/res\.cloudinary\.com\/.*/i,
