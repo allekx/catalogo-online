@@ -19,21 +19,24 @@ interface MainLayoutProps {
 export function MainLayout({ children }: MainLayoutProps) {
   const pathname = usePathname();
   const isAdminArea = pathname.startsWith("/admin");
-
-  if (isAdminArea) {
-    return <>{children}</>;
-  }
-
   const itemCount = useCartStore((s) => s.itemCount);
   const showCartBar =
-    itemCount > 0 && pathname !== ROUTES.cart;
+    !isAdminArea && itemCount > 0 && pathname !== ROUTES.cart;
 
   useEffect(() => {
+    if (isAdminArea) {
+      delete document.body.dataset.cartBar;
+      return;
+    }
     document.body.dataset.cartBar = showCartBar ? "true" : "false";
     return () => {
       delete document.body.dataset.cartBar;
     };
-  }, [showCartBar]);
+  }, [showCartBar, isAdminArea]);
+
+  if (isAdminArea) {
+    return <>{children}</>;
+  }
 
   return (
     <div className="app-root">
