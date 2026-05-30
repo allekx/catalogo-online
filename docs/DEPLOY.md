@@ -1,299 +1,94 @@
-# Deploy profissional — Le Maia
+# Deploy — Le Maia (Vercel + Supabase + Cloudinary)
 
-Guia para publicar o catálogo em **Vercel** (frontend + admin), **Railway** (API) e **Supabase** (PostgreSQL), com **HTTPS**, logs e segurança em produção.
+Stack única: **um projeto Next.js** no Vercel (catálogo público + API + painel admin).
 
-## Arquitetura
+| Serviço | Função |
+|---------|--------|
+| **Vercel** | Frontend, API Routes (`/api/*`), admin (`/admin/*`), PWA |
+| **Supabase** | PostgreSQL |
+| **Cloudinary** | Imagens |
 
-```
-┌─────────────────┐     HTTPS      ┌──────────────────┐
-│  Vercel         │ ──────────────▶│  Railway         │
-│  frontend/      │   REST /api    │  backend/        │
-│  (catálogo PWA) │                │  Express+Prisma  │
-└─────────────────┘                └────────┬─────────┘
-┌─────────────────┐                         │
-│  Vercel admin/  │ ────────────────────────┘
-└─────────────────┘
-                                          │
-                                          ▼
-                                 ┌──────────────────┐
-                                 │  Supabase        │
-                                 │  PostgreSQL      │
-                                 └──────────────────┘
-                                          ▲
-                                 ┌────────┴─────────┐
-                                 │  Cloudinary      │
-                                 │  (imagens)       │
-                                 └──────────────────┘
-```
+## 1. Supabase
 
-| Serviço | Pasta | URL exemplo |
-|---------|-------|-------------|
-| Catálogo | `frontend/` | `https://lemaia.vercel.app` |
-| Admin | `admin/` | `https://lemaia-admin.vercel.app` |
-| API | `backend/` | `https://le-maia-api.up.railway.app` |
-| Banco | — | Supabase (connection strings) |
+1. Crie o projeto em [supabase.com](https://supabase.com).
+2. Em **Settings → Database**, copie:
+   - **Transaction pooler** (6543) → `DATABASE_URL` com `?pgbouncer=true&connection_limit=1`
+   - **Session pooler** (5432) → `DIRECT_URL`
+3. Codifique caracteres especiais na senha na URL (`*` → `%2A`).
 
----
-
-## Pré-requisitos
-
-- Conta [GitHub](https://github.com)
-- [Supabase](https://supabase.com) — projeto PostgreSQL
-- [Railway](https://railway.app) — API Node
-- [Vercel](https://vercel.com) — 2 projetos (frontend + admin)
-- [Cloudinary](https://cloudinary.com) — upload de imagens
-
----
-
-## 1. Supabase (banco)
-
-1. Crie um projeto em **Supabase**.
-2. **Project Settings → Database**:
-   - **Transaction pooler** (porta **6543**) → `DATABASE_URL`  
-     Adicione `?pgbouncer=true&connection_limit=1` se não vier na URL.
-   - **Session / Direct** (porta **5432**) → `DIRECT_URL` (só migrations).
-3. Guarde a senha com segurança.
-
-### Migrations (primeira vez, local)
+Migrations (local ou CI):
 
 ```bash
-cd backend
-cp .env.example .env
-# Preencha DATABASE_URL e DIRECT_URL
+cd frontend
 npx prisma migrate deploy
 npm run db:seed
 ```
 
-Em produção, o **Railway** roda `prisma migrate deploy` no build automaticamente (`railway.toml`).
+## 2. Cloudinary
 
----
+1. Crie conta em [cloudinary.com](https://cloudinary.com).
+2. Configure no Vercel:
+   - `CLOUDINARY_CLOUD_NAME`
+   - `CLOUDINARY_API_KEY`
+   - `CLOUDINARY_API_SECRET`
+   - `CLOUDINARY_FOLDER=le-maia`
+3. No cliente (imagens Next.js): `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` (mesmo cloud name).
 
-## 2. Railway (backend)
+## 3. Vercel
 
-### Configuração do serviço
-
-1. **New Project → Deploy from GitHub** (repositório Le Maia).
-2. **Settings → Root Directory:** `backend`
-3. **Settings → Networking → Generate Domain** (HTTPS automático).
-4. Variáveis de ambiente (copie de `backend/.env.example`):
-
-| Variável | Obrigatório | Descrição |
-|----------|-------------|-----------|
-| `NODE_ENV` | Sim | `production` |
-| `PORT` | Não | Railway injeta; padrão `4000` |
-| `DATABASE_URL` | Sim | Pooler Supabase `:6543` |
-| `DIRECT_URL` | Sim | Conexão direta `:5432` |
-| `CORS_ORIGIN` | Sim | URLs Vercel separadas por vírgula |
-| `CLOUDINARY_*` | Sim* | Upload de produtos |
-| `UPLOAD_API_KEY` | Sim | Chave longa aleatória |
-| `ADMIN_API_KEY` | Sim | Chave longa aleatória |
-| `ADMIN_PASSWORD` | Sim | Senha forte do painel |
-
-\* Cloudinary obrigatório para upload; catálogo funciona com URLs externas sem ele.
-
-**Exemplo `CORS_ORIGIN`:**
-
-```
-https://lemaia.vercel.app,https://lemaia-admin.vercel.app
-```
-
-Sem barra no final. Sem espaços.
-
-### Build e health check
-
-O arquivo `backend/railway.toml` define:
-
-- Build: `npm install && npm run build && npx prisma migrate deploy`
-- Start: `npm run start`
-- Health: `GET /api/health` (retorna **503** se o banco estiver offline)
-
-### Logs
-
-No painel Railway → **Deployments → View Logs**.  
-A API emite logs **JSON** por requisição (`http_request`) e erros (`unhandled_error`).
-
-### Gerar chaves seguras (PowerShell)
-
-```powershell
-[Convert]::ToBase64String((1..32 | ForEach-Object { Get-Random -Maximum 256 }))
-```
-
-Use uma chave diferente para `UPLOAD_API_KEY` e `ADMIN_API_KEY`.
-
----
-
-## 3. Vercel — Catálogo (`frontend`)
-
-1. **Add New Project** → importe o repositório.
+1. Importe o repositório.
 2. **Root Directory:** `frontend`
-3. **Framework:** Next.js (detectado automaticamente).
-4. O `frontend/vercel.json` define região **gru1** (São Paulo) e headers de segurança (HSTS, etc.).
-5. Variáveis de ambiente:
+3. Framework: Next.js (detectado automaticamente).
+4. Build: `prisma generate && npm run build` (já em `frontend/vercel.json`).
+5. Região recomendada: **São Paulo (gru1)**.
 
-| Variável | Exemplo |
-|----------|---------|
-| `NEXT_PUBLIC_SITE_URL` | `https://lemaia.vercel.app` |
-| `NEXT_PUBLIC_API_URL` | `https://sua-api.up.railway.app/api` |
-| `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` | seu cloud name |
-| `NEXT_PUBLIC_WHATSAPP_NUMBER` | `5511...` |
-| `NEXT_PUBLIC_INSTAGRAM_URL` | URL Instagram |
-| `SEO_REVALIDATE_SECONDS` | `300` |
+### Variáveis de ambiente (produção)
 
-6. **Deploy** — HTTPS e CDN são automáticos na Vercel.
-7. (Opcional) Domínio customizado em **Settings → Domains**.
+| Variável | Obrigatória | Notas |
+|----------|-------------|-------|
+| `NEXT_PUBLIC_SITE_URL` | Sim | `https://seu-dominio.vercel.app` |
+| `DATABASE_URL` | Sim | Pooler 6543 + pgbouncer |
+| `DIRECT_URL` | Sim | Pooler 5432 (migrations) |
+| `CLOUDINARY_*` | Sim | 3 variáveis + folder |
+| `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` | Sim | Mesmo cloud name |
+| `ADMIN_API_KEY` | Sim | Token longo e aleatório |
+| `ADMIN_PASSWORD` | Sim | Senha do painel |
+| `UPLOAD_API_KEY` | Sim | Protege `/api/upload` |
+| `NEXT_PUBLIC_WHATSAPP_NUMBER` | Recomendado | |
+| `SEO_REVALIDATE_SECONDS` | Opcional | Padrão `300` |
 
-### PWA
+Não é necessário `NEXT_PUBLIC_API_URL` em produção — a API usa o mesmo domínio (`/api`).
 
-Service Worker e instalação no celular funcionam **apenas em produção** (`npm run build` + deploy). Em `dev`, o SW é removido automaticamente.
+### Painel admin
 
----
+- URL: `https://seu-dominio.vercel.app/admin`
+- Login: `https://seu-dominio.vercel.app/admin/login`
+- Proteção: cookie + middleware + header `x-admin-key`
 
-## 4. Vercel — Admin (`admin`)
-
-1. Segundo projeto na Vercel (mesmo repositório).
-2. **Root Directory:** `admin`
-3. Variáveis:
-
-| Variável | Exemplo |
-|----------|---------|
-| `NEXT_PUBLIC_API_URL` | `https://sua-api.up.railway.app` |
-
-**Importante:** sem `/api` no final — as rotas do admin já usam `/api/admin/...`.
-
-4. Inclua a URL do admin em `CORS_ORIGIN` no Railway.
-
----
-
-## 5. Cloudinary
-
-1. Dashboard → **Account Details**.
-2. Configure no Railway: `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`, `CLOUDINARY_FOLDER=le-maia`.
-3. No frontend, apenas `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME`.
-
-### Teste de upload
+## 4. Desenvolvimento local
 
 ```bash
-curl -X POST https://SUA-API.up.railway.app/api/upload \
-  -H "x-api-key: SUA_UPLOAD_API_KEY" \
-  -F "file=@imagem.jpg" \
-  -F "folder=products"
+npm install
+cp frontend/.env.example frontend/.env.local
+# Edite DATABASE_URL, DIRECT_URL, Cloudinary, admin
+
+npm run dev
 ```
 
----
+- Catálogo: http://localhost:3000  
+- API: http://localhost:3000/api/health  
+- Admin: http://localhost:3000/admin  
 
-## Scripts de deploy (monorepo)
+## 5. Checklist pós-deploy
 
-Na raiz do projeto:
+- [ ] `GET /api/health` → `database: connected`
+- [ ] Catálogo carrega produtos
+- [ ] Login em `/admin/login`
+- [ ] Upload de imagem no admin
+- [ ] PWA / manifest OK
 
-| Comando | Descrição |
-|---------|-----------|
-| `npm run build` | Build frontend + backend + admin |
-| `npm run build:frontend` | Build Next.js catálogo |
-| `npm run build:backend` | Prisma generate + TypeScript |
-| `npm run db:migrate:deploy` | Migrations em produção (manual) |
-| `npm run deploy:check` | Valida `.env` locais |
-| `npm run deploy:pre` | Build completo + check (PowerShell) |
+## O que foi removido
 
-### Pre-deploy local (Windows)
-
-```powershell
-.\scripts\deploy\pre-deploy.ps1
-```
-
-### Seed após primeiro deploy
-
-```powershell
-.\scripts\deploy\seed-production.ps1
-```
-
-(Requer `backend/.env` apontando para Supabase.)
-
----
-
-## HTTPS
-
-| Plataforma | HTTPS |
-|------------|--------|
-| Vercel | Automático (Let's Encrypt) |
-| Railway | Automático no domínio `*.up.railway.app` |
-| Supabase | Conexões TLS no connection string |
-
-**Regras:**
-
-- `NEXT_PUBLIC_SITE_URL` e `NEXT_PUBLIC_API_URL` devem usar `https://` em produção.
-- `CORS_ORIGIN` deve listar as URLs HTTPS exatas do Vercel.
-- O frontend envia header `Strict-Transport-Security` via `vercel.json`.
-
----
-
-## Segurança em produção
-
-O backend valida na subida (`assertProductionEnv`):
-
-- `DATABASE_URL`, `DIRECT_URL`, `CORS_ORIGIN` obrigatórios
-- `UPLOAD_API_KEY`, `ADMIN_API_KEY`, `ADMIN_PASSWORD` não podem ser valores padrão de dev
-- Helmet + rate limit (200 req/15 min API, 20 uploads/min)
-- `trust proxy` ativo (Railway)
-- Upload exige header `x-api-key`
-- Admin exige `x-admin-key` + senha no login
-
----
-
-## Checklist final
-
-- [ ] Supabase: `DATABASE_URL` (pooler 6543) + `DIRECT_URL` (5432)
-- [ ] Railway: root `backend`, health `/api/health` verde
-- [ ] Railway: `CORS_ORIGIN` com URLs do catálogo e admin (HTTPS)
-- [ ] Railway: chaves admin/upload alteradas
-- [ ] Vercel frontend: `NEXT_PUBLIC_API_URL` termina com `/api`
-- [ ] Vercel admin: `NEXT_PUBLIC_API_URL` **sem** `/api`
-- [ ] Cloudinary configurado no Railway
-- [ ] `npm run deploy:check` sem erros (com `.env` preenchidos)
-- [ ] Seed executado (`db:seed`) se banco vazio
-- [ ] PWA testado em produção (instalar no celular)
-
----
-
-## CI (GitHub Actions)
-
-O workflow `.github/workflows/ci.yml` roda em cada push/PR:
-
-- `npm ci`
-- lint em todos os workspaces
-- build frontend, backend e admin
-
----
-
-## Solução de problemas
-
-| Problema | Solução |
-|----------|---------|
-| CORS bloqueado | Confira `CORS_ORIGIN` exata (protocolo + domínio, sem `/` final) |
-| Health 503 | Banco inacessível — revise `DATABASE_URL` / IP allowlist Supabase |
-| Build Railway falha Prisma | `DIRECT_URL` correta; migrations na pasta `prisma/migrations` |
-| Admin não loga | `NEXT_PUBLIC_API_URL` sem `/api`; `ADMIN_*` no Railway |
-| PWA não instala | Deploy produção Vercel + `NEXT_PUBLIC_SITE_URL` HTTPS |
-| Imagens não carregam | `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` + domínio Cloudinary no Next |
-
----
-
-## Estrutura de arquivos de deploy
-
-```
-├── .github/workflows/ci.yml
-├── scripts/deploy/
-│   ├── check-env.mjs
-│   ├── pre-deploy.ps1
-│   └── seed-production.ps1
-├── backend/
-│   ├── railway.toml
-│   ├── nixpacks.toml
-│   └── .env.example
-├── frontend/
-│   ├── vercel.json
-│   └── .env.example
-├── admin/
-│   ├── vercel.json
-│   └── .env.example
-└── docs/DEPLOY.md
-```
+- Railway / Express backend separado
+- Segundo deploy Vercel só para admin
+- `NEXT_PUBLIC_API_URL` apontando para outro host (opcional em dev)

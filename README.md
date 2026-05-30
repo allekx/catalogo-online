@@ -8,8 +8,7 @@ Modelo de negócio: [`docs/BUSINESS-MODEL.md`](docs/BUSINESS-MODEL.md)
 
 | Camada | Plataforma |
 |--------|------------|
-| Frontend + PWA | **Vercel** |
-| API REST | **Railway** |
+| Catálogo + API + Admin + PWA | **Vercel** (`frontend/`) |
 | PostgreSQL | **Supabase** |
 | Imagens | **Cloudinary** |
 
@@ -21,49 +20,42 @@ Roadmap premium: [`docs/ROADMAP-PREMIUM.md`](docs/ROADMAP-PREMIUM.md)
 ## Estrutura
 
 ```
-├── frontend/          # Catálogo público — PWA, SEO (Vercel)
-│   └── design-system/
-├── admin/             # Painel privado do dono (Vercel, URL separada)
-├── backend/           # API REST (Railway)
-└── docs/              # Negócio, arquitetura, deploy
+├── frontend/          # Next.js — catálogo, /api, /admin, Prisma, PWA
+│   ├── app/api/       # Route Handlers (ex-Railway)
+│   ├── app/admin/     # Painel privado
+│   └── prisma/
+├── backend/           # Legado Express (não usar em deploy)
+└── docs/
 ```
 
 ## Variáveis de ambiente
 
 | Arquivo | Uso |
 |---------|-----|
-| `.env.example` | Referência geral |
-| `frontend/.env.example` | Vercel / dev local |
-| `backend/.env.example` | Railway / Supabase / Cloudinary |
+| `frontend/.env.example` | Vercel + Supabase + Cloudinary + admin |
 
 ## Início rápido (desenvolvimento)
 
 ```bash
 npm install
-
-# Frontend
 cp frontend/.env.example frontend/.env.local
-npm run dev
+# Configure DATABASE_URL, DIRECT_URL, Cloudinary, ADMIN_*
 
-# Backend (com Supabase configurado)
-cp backend/.env.example backend/.env
-npm run dev:backend
+npm run dev
+# Catálogo :3000 | API :3000/api | Admin :3000/admin
 ```
 
 ## Scripts
 
 | Comando | Descrição |
 |---------|-----------|
-| `npm run dev` | Frontend :3000 |
-| `npm run dev:backend` | API :4000 |
-| `npm run dev:admin` | Admin :3001 |
-| `npm run build` | Build todos os workspaces |
-| `npm run build:frontend` | Build Vercel (catálogo) |
-| `npm run build:backend` | Build Railway (API) |
+| `npm run dev` | Next.js :3000 (catálogo + API + admin) |
+| `npm run build` | Build produção |
+| `npm run db:migrate` | Prisma migrate dev |
 | `npm run db:migrate:deploy` | Migrations em produção |
-| `npm run db:seed` | Popular banco (dev/prod) |
-| `npm run deploy:check` | Validar variáveis de ambiente |
-| `npm run deploy:pre` | Build + check antes do deploy |
+| `npm run db:seed` | Popular banco |
+| `npm run db:studio` | Prisma Studio |
+| `npm run deploy:check` | Validar variáveis Vercel |
 
 ## Design System
 

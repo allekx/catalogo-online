@@ -1,97 +1,57 @@
 # Arquitetura — Le Maia
 
-Visão do monorepo alinhada ao [modelo de negócio](./BUSINESS-MODEL.md).
+Monorepo com **um app Next.js** (`frontend/`) no Vercel.
 
 ## Visão geral
 
 ```
-Catálogo online/
-├── frontend/     # Vitrine pública (Next.js 14, PWA, SEO)
-├── admin/        # Painel privado do dono (Next.js 14)
-├── backend/      # API REST (Express + Prisma)
-└── docs/         # Deploy, negócio, roadmap
+frontend/
+├── app/
+│   ├── (catálogo público)/   # /, /catalogo, /carrinho…
+│   ├── admin/                # Painel privado /admin/*
+│   └── api/                  # Route Handlers /api/*
+├── lib/
+│   ├── server/               # Prisma, handlers, Cloudinary
+│   ├── admin/                # Cliente HTTP do painel
+│   └── products/             # Domínio catálogo
+└── prisma/                   # Schema + migrations
 ```
 
-## Três superfícies
+## Superfícies
 
-| Superfície | Responsabilidade | Auth |
-|------------|------------------|------|
-| **frontend** | Catálogo, carrinho, WhatsApp, favoritos locais | Nenhuma |
-| **admin** | CRUD produtos/categorias, pedidos, métricas | Senha + token + middleware |
-| **backend** | Dados, uploads, analytics admin | `ADMIN_API_KEY` nas rotas `/admin/*` |
+| Superfície | Rota | Auth |
+|------------|------|------|
+| Catálogo | `/`, `/catalogo`, … | Nenhuma |
+| API pública | `/api/products`, `/api/categories`, … | Nenhuma |
+| API admin | `/api/admin/*` | `x-admin-key` + senha no login |
+| Painel | `/admin/*` | Cookie + middleware |
 
-## Frontend (catálogo público)
+## API (Route Handlers)
 
-```
-app/                    # Rotas Next.js (RSC quando possível)
-components/
-  ├── catalog/          # Listagem, filtros, busca
-  ├── cart/             # Carrinho (localStorage)
-  ├── whatsapp/         # Botões e fluxo wa.me
-  ├── product/          # Detalhe, galeria
-  └── layout/           # Nav mobile/desktop, menu
-lib/
-  ├── constants/        # routes, navigation, menu
-  ├── products/         # types, normalize, fetch
-  ├── whatsapp/         # mensagens, encode, open
-  ├── seo/              # metadata, sitemap
-  └── catalog/          # filtros, URL sync
-store/                  # useCartStore, useFavoritesStore, useAppStore
-```
+- **Runtime:** `nodejs` (Prisma + Cloudinary)
+- **Dynamic:** `force-dynamic` nas rotas com DB
+- **Cache:** headers `Cache-Control` em GETs públicos
 
-### Regras
+Handlers em `lib/server/handlers/`; rotas finas em `app/api/`.
 
-| O quê | Onde |
-|-------|------|
-| Rotas públicas | `lib/constants/routes.ts` |
-| Bottom nav / desktop nav | `lib/constants/navigation.ts` |
-| Menu hambúrguer | `lib/constants/menu.ts` |
-| Checkout do pedido | `lib/whatsapp/` → `openCartOrderWhatsApp` |
-| Metadata | `lib/metadata.ts` → `lib/seo/` |
+## Prisma no Vercel
 
-### Server vs Client
+- `postinstall` / build: `prisma generate`
+- `DATABASE_URL`: pooler transaction (6543)
+- `DIRECT_URL`: pooler session (5432) para migrations locais
+- Singleton em `lib/server/prisma.ts` (serverless-safe)
 
-- **Server:** home, produto `[slug]`, sitemap, metadata
-- **Client:** carrinho, filtros, motion, PWA, `CatalogView`
+## Cliente → API
 
-## Admin (painel privado)
+- Browser: `getApiBaseUrl()` → `/api` (same origin)
+- SSR: URL absoluta via `NEXT_PUBLIC_SITE_URL` ou `VERCEL_URL`
 
-```
-admin/app/
-  login/              # Público — formulário de senha
-  (panel)/            # Protegido — dashboard, produtos, pedidos…
-admin/middleware.ts   # Redireciona sem cookie de sessão
-admin/lib/auth.ts     # sessionStorage + cookie (middleware)
-```
+## Admin integrado
 
-Proteção em duas camadas: **middleware** (servidor) + **AdminShell** (cliente, UX).
+- UI em `app/admin/` + `components/admin/`
+- API em `/api/admin/`
+- Middleware em `frontend/middleware.ts` (matcher `/admin/:path*`)
 
-## Backend
+## Legado
 
-```
-backend/src/routes/
-  public/               # Produtos, categorias (catálogo)
-  admin/                # Autenticado com API key
-```
-
-## Fluxo de pedido
-
-1. Cliente monta carrinho no frontend (Zustand → localStorage)
-2. Clica em “Finalizar pedido no WhatsApp”
-3. `buildOrderMessage` + `encodeURIComponent` → `wa.me`
-4. Atendimento manual; admin pode registrar pedido/contato via API
-
-## O que evitar no frontend público
-
-- Rotas ou copy de “conta”, “login”, “checkout com pagamento”
-- Estados globais de usuário autenticado
-- Dependências de sessão para carrinho ou favoritos
-
-## Imports recomendados
-
-```ts
-import { ROUTES } from "@/lib/constants/routes";
-import { formatPrice } from "@/lib/format/currency";
-import { openCartOrderWhatsApp } from "@/lib/whatsapp";
-import { buildPageMetadata } from "@/lib/metadata";
-```
+O diretório `backend/` (Express) não é mais usado em deploy. Ver `backend/README.md`.
