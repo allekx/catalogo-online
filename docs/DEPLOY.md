@@ -36,17 +36,30 @@ npm run db:seed
 
 ## 3. Vercel
 
-1. Importe o repositório.
-2. **Root Directory:** `frontend`
-3. Framework: Next.js (detectado automaticamente).
-4. Build: `prisma generate && npm run build` (já em `frontend/vercel.json`).
-5. Região recomendada: **São Paulo (gru1)**.
+### Checklist obrigatório (Settings)
+
+| Campo | Valor |
+|-------|--------|
+| **Root Directory** | `frontend` |
+| **Framework** | Next.js |
+| **Build Command** | `prisma generate && npm run build` (em `frontend/vercel.json`) |
+| **Install Command** | `npm install` |
+| **Production Region** | `gru1` (São Paulo) |
+
+Após alterar variáveis: **Deployments → Redeploy** (marque *Clear build cache* uma vez).
+
+Validar env localmente (com `.env` carregado):
+
+```bash
+# PowerShell — carregue as mesmas vars do painel Vercel
+npm run deploy:check
+```
 
 ### Variáveis de ambiente (produção)
 
 | Variável | Obrigatória | Notas |
 |----------|-------------|-------|
-| `NEXT_PUBLIC_SITE_URL` | Sim | `https://seu-dominio.vercel.app` |
+| `NEXT_PUBLIC_SITE_URL` | Sim | **`https://`** + domínio, sem barra final. Ex.: `https://catalogo-online.vercel.app`. Sem `https://` o site quebrava com 500 (corrigido no código, mas configure corretamente). |
 | `DATABASE_URL` | Sim | Pooler 6543 + pgbouncer |
 | `DIRECT_URL` | Sim | Pooler 5432 (migrations) |
 | `CLOUDINARY_*` | Sim | 3 variáveis + folder |
@@ -81,6 +94,14 @@ npm run dev
 
 ## 5. Checklist pós-deploy
 
+1. Build logs mostram `next build` (não `backend@1.0.0`).
+2. `GET /api/health` → JSON com `database: "connected"` (503 só se DB errado, não página de crash).
+3. `GET /` → home do catálogo (sem `FUNCTION_INVOCATION_FAILED`).
+4. Login em `/admin/login`.
+5. Upload de imagem no admin.
+6. Se ainda falhar: **Deployments → Runtime Logs** na rota `/` ou `/api/health`.
+7. Use a URL exata do deploy em **Vercel → Domains** (ex.: `catalogo-online-xxx.vercel.app`). O domínio genérico `catalogo-online.vercel.app` pode ser **outro projeto** na sua conta.
+
 - [ ] `GET /api/health` → `database: connected`
 - [ ] Catálogo carrega produtos
 - [ ] Login em `/admin/login`
@@ -107,10 +128,13 @@ O build não pode usar a pasta `backend` (Express). No projeto Vercel:
 
 Nos logs, se aparecer `backend@1.0.0 build`, o deploy está **desatualizado** ou com pasta raiz errada. Faça **push** do código novo e **Redeploy**.
 
-**Causa 2 — Variáveis de ambiente faltando**  
-Sem `DATABASE_URL` e `DIRECT_URL`, as rotas `/api/*` quebram. Configure todas as variáveis da tabela acima em **Production** e rode **Redeploy**.
+**Causa 2 — `NEXT_PUBLIC_SITE_URL` inválida**  
+Valor sem `https://` (ex.: só `catalogo-online.vercel.app`) fazia `new URL()` falhar no layout. O app agora normaliza a URL; no Vercel use sempre `https://seu-dominio.vercel.app`.
 
-**Causa 3 — Código antigo no GitHub**  
+**Causa 3 — Variáveis de ambiente faltando**  
+Sem `DATABASE_URL` e `DIRECT_URL`, as rotas `/api/*` retornam erro. Configure todas as variáveis da tabela acima em **Production** e rode **Redeploy**.
+
+**Causa 4 — Código antigo no GitHub**  
 Confirme que o repositório tem:
 
 - `frontend/app/api/` (API no Next.js)

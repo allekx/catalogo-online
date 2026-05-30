@@ -1,14 +1,14 @@
 import type { Metadata, Viewport } from "next";
+import { resolveSiteUrl } from "@/lib/seo/resolve-site-url";
 import {
   DEFAULT_OG_IMAGE_PATH,
   SITE_DESCRIPTION,
   SITE_NAME,
-  SITE_URL,
   defaultOgImage,
 } from "@/lib/seo/metadata";
 
 export const defaultMetadata: Metadata = {
-  metadataBase: new URL(SITE_URL),
+  metadataBase: new URL(resolveSiteUrl()),
   title: {
     default: `${SITE_NAME} | Bolsas Personalizadas`,
     template: `%s | ${SITE_NAME}`,

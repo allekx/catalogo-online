@@ -40,8 +40,34 @@ for (const key of recommended) {
   }
 }
 
-if (process.env.NEXT_PUBLIC_SITE_URL && !process.env.NEXT_PUBLIC_SITE_URL.startsWith("https://")) {
-  console.warn("⚠ NEXT_PUBLIC_SITE_URL — use HTTPS em produção");
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+if (siteUrl) {
+  let parsed;
+  try {
+    const normalized = /^https?:\/\//i.test(siteUrl)
+      ? siteUrl
+      : `https://${siteUrl}`;
+    parsed = new URL(normalized);
+  } catch {
+    console.error(
+      "✗ NEXT_PUBLIC_SITE_URL — URL inválida (causa 500 no Vercel: metadataBase)"
+    );
+    failed = true;
+    parsed = null;
+  }
+
+  if (parsed) {
+    if (parsed.protocol !== "https:") {
+      console.warn(
+        "⚠ NEXT_PUBLIC_SITE_URL — use HTTPS em produção (ex.: https://catalogo-online.vercel.app)"
+      );
+    }
+    if (siteUrl !== parsed.href.replace(/\/$/, "") && !/^https?:\/\//i.test(siteUrl)) {
+      console.warn(
+        `⚠ NEXT_PUBLIC_SITE_URL — sem protocolo; o app usará: ${parsed.origin}`
+      );
+    }
+  }
 }
 
 if (process.env.ADMIN_API_KEY === "dev-admin-key") {

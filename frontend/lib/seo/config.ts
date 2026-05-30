@@ -1,11 +1,11 @@
 import { ROUTES } from "@/lib/constants/routes";
+import { resolveSiteUrl } from "./resolve-site-url";
 
 export const SITE_NAME = "Le Maia";
 export const SITE_DESCRIPTION =
   "Catálogo premium de bolsas personalizadas femininas. Monte seu pedido e finalize pelo WhatsApp — sem cadastro.";
 
-export const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+export const SITE_URL = resolveSiteUrl();
 
 /** Rotas indexáveis no sitemap */
 export const STATIC_SITEMAP_ROUTES = [
