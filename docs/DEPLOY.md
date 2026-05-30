@@ -92,3 +92,36 @@ npm run dev
 - Railway / Express backend separado
 - Segundo deploy Vercel só para admin
 - `NEXT_PUBLIC_API_URL` apontando para outro host (opcional em dev)
+
+---
+
+## Problemas comuns no Vercel
+
+### Erro 500 — `FUNCTION_INVOCATION_FAILED`
+
+**Causa 1 — Root Directory errado**  
+O build não pode usar a pasta `backend` (Express). No projeto Vercel:
+
+1. **Settings → General → Root Directory** = `frontend`
+2. Ou deixe a raiz do repo e use o `vercel.json` na raiz (já configurado para `le-maia-frontend`).
+
+Nos logs, se aparecer `backend@1.0.0 build`, o deploy está **desatualizado** ou com pasta raiz errada. Faça **push** do código novo e **Redeploy**.
+
+**Causa 2 — Variáveis de ambiente faltando**  
+Sem `DATABASE_URL` e `DIRECT_URL`, as rotas `/api/*` quebram. Configure todas as variáveis da tabela acima em **Production** e rode **Redeploy**.
+
+**Causa 3 — Código antigo no GitHub**  
+Confirme que o repositório tem:
+
+- `frontend/app/api/` (API no Next.js)
+- `frontend/prisma/`
+- `package.json` na raiz com workspace só `frontend`
+
+Teste após deploy:
+
+- `https://seu-dominio.vercel.app/api/health` → `"database": "connected"`
+- `https://seu-dominio.vercel.app/` → home do catálogo
+
+### Submodule warning (`Failed to fetch git submodules`)
+
+Isso acontecia porque a pasta `frontend/` estava registrada como **submódulo Git** (só o commit vazio do Create Next App ia para o GitHub). A correção é versionar `frontend/` como pasta normal (sem `frontend/.git`) e fazer **push** de novo.

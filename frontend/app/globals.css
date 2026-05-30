@@ -1,0 +1,254 @@
+@import "../styles/theme.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Variáveis de layout mobile (safe areas, nav) */
+:root {
+  --bottom-nav-height: 4.25rem;
+  --floating-extra: 0rem;
+  --floating-bottom: calc(
+    var(--bottom-nav-height) + env(safe-area-inset-bottom, 0px) +
+      var(--floating-extra)
+  );
+  --cart-bar-height: 3.25rem;
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --bottom-nav-height: 0rem;
+    --floating-bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
+    --sidebar-width: 15rem;
+  }
+}
+
+body[data-cart-bar="true"] {
+  --floating-extra: var(--cart-bar-height);
+}
+
+@layer base {
+  * {
+    @apply border-maia-text/10;
+  }
+
+  html {
+    @apply scroll-smooth antialiased;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-text-size-adjust: 100%;
+    overflow-x: hidden;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+
+  body {
+    @apply bg-background font-body text-maia-text;
+    color: var(--color-foreground);
+    background-color: var(--color-background);
+    overscroll-behavior: none;
+    min-height: 100dvh;
+    min-height: -webkit-fill-available;
+    overflow-x: hidden;
+    touch-action: manipulation;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-display font-semibold tracking-tight;
+  }
+
+  button,
+  a,
+  [role="button"],
+  input[type="checkbox"],
+  input[type="radio"],
+  select {
+    touch-action: manipulation;
+  }
+}
+
+@layer components {
+  .content-padding {
+    @apply px-4 sm:px-6;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center rounded-2xl bg-maia-orange px-6 py-3.5 font-display text-sm font-semibold text-white shadow-float transition-all active:scale-[0.98] hover:brightness-105;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center rounded-2xl border border-maia-rose/60 bg-maia-nude/50 px-6 py-3.5 font-display text-sm font-medium text-maia-text transition-all active:scale-[0.98] hover:bg-maia-nude;
+  }
+
+  .card-premium {
+    @apply overflow-hidden rounded-3xl bg-white shadow-card;
+  }
+
+  .gradient-hero {
+    background: linear-gradient(
+      165deg,
+      var(--color-nude) 0%,
+      var(--color-white) 45%,
+      var(--color-rose) 100%
+    );
+  }
+
+  .app-root {
+    @apply relative min-h-dvh w-full overflow-x-hidden bg-[#FAFAFA];
+  }
+
+  .app-container {
+    @apply mx-auto w-full;
+  }
+
+  .app-content {
+    @apply mx-auto w-full max-w-app px-4 sm:max-w-app-tablet sm:px-6 md:max-w-app-wide lg:max-w-none lg:px-8 xl:px-10;
+  }
+
+  .page-padding {
+    padding-top: calc(
+      var(--nav-height) + env(safe-area-inset-top, 0px) + 0.5rem
+    );
+    padding-bottom: calc(var(--floating-bottom) + 1rem);
+  }
+
+  @media (min-width: 1024px) {
+    .page-padding {
+      padding-top: calc(
+        var(--nav-height) + env(safe-area-inset-top, 0px) + 1rem
+      );
+      padding-bottom: 2rem;
+      padding-left: 0;
+      padding-right: 0;
+    }
+  }
+
+  .app-layout-body {
+    @apply flex w-full flex-col lg:flex-row;
+  }
+
+  .app-main {
+    @apply min-w-0 flex-1;
+  }
+
+  .bottom-nav-shell {
+    @apply fixed bottom-0 left-0 right-0 z-50 lg:hidden;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  .bottom-nav-inner {
+    @apply border-t border-maia-text/[0.06] bg-white/90 shadow-nav backdrop-blur-2xl backdrop-saturate-150;
+  }
+
+  .bottom-nav-item {
+    @apply relative flex min-h-[48px] min-w-[44px] flex-1 flex-col items-center justify-center gap-0.5 px-1 py-2;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .product-grid {
+    @apply grid grid-cols-2 gap-3 xs:gap-3.5 sm:gap-4 md:grid-cols-3 md:gap-4 lg:grid-cols-3 lg:gap-5 xl:grid-cols-4;
+  }
+
+  .scroll-touch-x {
+    @apply overflow-x-auto hide-scrollbar;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x proximity;
+    overscroll-behavior-x: contain;
+  }
+
+  .touch-target {
+    @apply min-h-[44px] min-w-[44px];
+  }
+
+  .touch-target-sm {
+    @apply min-h-[40px] min-w-[40px];
+  }
+
+  .fab-bottom {
+    bottom: calc(var(--floating-bottom) + 0.75rem);
+  }
+
+  .cart-bar-bottom {
+    bottom: var(--floating-bottom);
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .safe-top {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .min-h-dvh {
+    min-height: 100dvh;
+    min-height: -webkit-fill-available;
+  }
+
+  .pb-safe-nav {
+    padding-bottom: var(--floating-bottom);
+  }
+
+  .scroll-smooth-touch {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .motion-safe-only {
+      animation: none !important;
+      transition: none !important;
+    }
+  }
+
+  .product-grid > * {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 320px;
+  }
+
+  /* Painel admin (/admin) */
+  .admin-card {
+    @apply rounded-2xl border border-black/[0.06] bg-white p-5 shadow-sm;
+  }
+
+  .admin-input {
+    @apply w-full rounded-xl border border-black/[0.08] bg-white px-3.5 py-2.5 text-sm outline-none transition-shadow focus:border-maia-orange/50 focus:ring-2 focus:ring-maia-orange/15;
+  }
+
+  .admin-label {
+    @apply mb-1.5 block text-xs font-medium uppercase tracking-wide text-maia-muted;
+  }
+
+  .btn-danger {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-red-50 px-4 py-2.5 text-sm font-medium text-red-600 transition-all hover:bg-red-100 active:scale-[0.98];
+  }
+}
+
+.admin-root {
+  --sidebar-width: 260px;
+  min-height: 100dvh;
+  background: #f8f6f4;
+}
