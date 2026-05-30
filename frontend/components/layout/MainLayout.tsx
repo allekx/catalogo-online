@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { releaseAllBodyScrollLocks } from "@/hooks/useBodyScrollLock";
 import { usePathname } from "next/navigation";
 import { Navbar } from "./Navbar";
 import { BottomNavigation } from "./BottomNavigation";
@@ -33,6 +34,10 @@ export function MainLayout({ children }: MainLayoutProps) {
       delete document.body.dataset.cartBar;
     };
   }, [showCartBar, isAdminArea]);
+
+  useEffect(() => {
+    releaseAllBodyScrollLocks();
+  }, [pathname]);
 
   if (isAdminArea) {
     return <>{children}</>;

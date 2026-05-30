@@ -17,7 +17,7 @@ export default function FavoritesPage() {
           ? count === 1
             ? "Sua peça favorita, sempre à mão"
             : "Suas peças favoritas, sempre à mão"
-          : "Suas peças favoritas aparecem aqui"}
+          : "Guarde aqui as peças que mais amou — só neste aparelho"}
       </Typography>
       <FavoritesView />
     </div>

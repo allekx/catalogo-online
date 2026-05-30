@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useCallback } from "react";
+import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -133,10 +134,10 @@ export function MobileMenu() {
   const { isMenuOpen, setMenuOpen } = useAppStore();
 
   const close = useCallback(() => setMenuOpen(false), [setMenuOpen]);
+  useBodyScrollLock(isMenuOpen);
 
   useEffect(() => {
     if (!isMenuOpen) return;
-    document.body.style.overflow = "hidden";
 
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") close();
@@ -144,7 +145,6 @@ export function MobileMenu() {
     window.addEventListener("keydown", onKey);
 
     return () => {
-      document.body.style.overflow = "";
       window.removeEventListener("keydown", onKey);
     };
   }, [isMenuOpen, close]);

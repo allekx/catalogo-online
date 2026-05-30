@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { ShoppingBag } from "lucide-react";
 import { FavoriteButton } from "@/components/favorites/FavoriteButton";
@@ -12,6 +11,7 @@ import { cn } from "@/lib/utils/cn";
 import { getProductImageUrl } from "@/lib/cloudinary";
 import { ROUTES } from "@/lib/constants/routes";
 import { Button } from "./Button";
+import { ConstrainedProductImage } from "./ConstrainedProductImage";
 
 export interface ProductCardProps {
   id: string;
@@ -49,25 +49,20 @@ export function ProductCard({
     cloudinaryPublicId,
     category: categoryName ? { name: categoryName } : undefined,
   };
-  const isCloudinary = imgSrc.includes("res.cloudinary.com");
-  const isExternal = imgSrc.startsWith("http") && !isCloudinary;
-
   const content = (
     <>
       <Link
         href={ROUTES.product(slug)}
-        className="relative block aspect-[4/5] overflow-hidden bg-maia-nude/30"
+        className="relative block overflow-hidden bg-maia-nude/30"
+        aria-label={`Ver ${name}`}
       >
-        <Image
+        <ConstrainedProductImage
           src={imgSrc}
           alt={name}
-          fill
           priority={priority}
-          loading={priority ? undefined : "lazy"}
-          decoding="async"
-          unoptimized={isExternal && !isCloudinary}
           sizes={PRODUCT_CARD_SIZES}
-          className="object-cover transition-transform duration-500 ease-out group-active:scale-[1.02] md:group-hover:scale-[1.03]"
+          className="bg-maia-nude/30 transition-transform duration-500 ease-out group-active:scale-[1.02] md:group-hover:scale-[1.03]"
+          imageClassName="transition-transform duration-500 ease-out group-active:scale-[1.02] md:group-hover:scale-[1.03]"
         />
         <div className="absolute right-2 top-2 sm:right-2.5 sm:top-2.5">
           <FavoriteButton

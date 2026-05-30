@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect } from "react";
 import { motion, AnimatePresence, useDragControls, PanInfo } from "framer-motion";
 import { useEscapeKey } from "@/hooks/useEscapeKey";
+import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
 import { cn } from "@/lib/utils/cn";
 import { easings } from "../tokens/animations";
 
@@ -24,14 +24,7 @@ export function BottomSheet({
 }: BottomSheetProps) {
   const dragControls = useDragControls();
   useEscapeKey(open, onClose);
-
-  useEffect(() => {
-    if (open) document.body.style.overflow = "hidden";
-    else document.body.style.overflow = "";
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [open]);
+  useBodyScrollLock(open);
 
   const handleDragEnd = (_: unknown, info: PanInfo) => {
     if (info.offset.y > 80 || info.velocity.y > 400) {

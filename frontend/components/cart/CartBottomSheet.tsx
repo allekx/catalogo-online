@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { motion, AnimatePresence, useDragControls, PanInfo } from "framer-motion";
 import { X } from "lucide-react";
+import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
 import { useAppStore } from "@/store/useAppStore";
 import { useCartStore } from "@/store/useCartStore";
 import { CartView } from "./CartView";
@@ -13,18 +14,15 @@ export function CartBottomSheet() {
   const { isCartOpen, closeCart } = useAppStore();
   const itemCount = useCartStore((s) => s.itemCount);
   const dragControls = useDragControls();
+  useBodyScrollLock(isCartOpen);
 
   useEffect(() => {
     if (!isCartOpen) return;
-    document.body.style.overflow = "hidden";
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") closeCart();
     };
     window.addEventListener("keydown", onKey);
-    return () => {
-      document.body.style.overflow = "";
-      window.removeEventListener("keydown", onKey);
-    };
+    return () => window.removeEventListener("keydown", onKey);
   }, [isCartOpen, closeCart]);
 
   const handleDragEnd = (_: unknown, info: PanInfo) => {

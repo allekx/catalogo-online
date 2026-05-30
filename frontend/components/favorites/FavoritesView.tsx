@@ -1,18 +1,20 @@
 "use client";
 
-import Link from "next/link";
-import { Heart } from "lucide-react";
-import { Button, Card, ProductCard, Typography, toast } from "@/design-system";
+import { ProductCard, toast } from "@/design-system";
 import {
   favoriteItemToProduct,
   sanitizeFavoriteItems,
 } from "@/lib/favorites/helpers";
-import { ROUTES } from "@/lib/constants/routes";
 import { useFavoritesStore } from "@/store/useFavoritesStore";
 import { useCartStore } from "@/store/useCartStore";
+import { FavoritesEmptyState } from "./FavoritesEmptyState";
 
 function selectFavoriteItems(state: { items?: unknown }) {
-  return sanitizeFavoriteItems(state.items ?? []);
+  try {
+    return sanitizeFavoriteItems(state.items ?? []);
+  } catch {
+    return [];
+  }
 }
 
 export function FavoritesView() {
@@ -20,26 +22,7 @@ export function FavoritesView() {
   const addItem = useCartStore((s) => s.addItem);
 
   if (items.length === 0) {
-    return (
-      <Card
-        variant="default"
-        padding="lg"
-        className="flex flex-col items-center text-center"
-      >
-        <Heart className="h-12 w-12 text-maia-rose" strokeWidth={1.25} />
-        <Typography variant="body-sm" className="mt-4 text-maia-muted">
-          Você ainda não salvou nenhuma bolsa.
-        </Typography>
-        <Typography variant="caption" className="mt-1 text-maia-muted">
-          Toque no coração nos produtos para guardar aqui.
-        </Typography>
-        <Link href={ROUTES.catalog} className="mt-6 w-full max-w-xs">
-          <Button variant="primary" fullWidth>
-            Explorar catálogo
-          </Button>
-        </Link>
-      </Card>
-    );
+    return <FavoritesEmptyState />;
   }
 
   return (

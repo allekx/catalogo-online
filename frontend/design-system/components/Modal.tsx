@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
 import { useEscapeKey } from "@/hooks/useEscapeKey";
+import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
 import { cn } from "@/lib/utils/cn";
 import { motionVariants, easings } from "../tokens/animations";
 
@@ -25,17 +25,7 @@ export function Modal({
   showClose = true,
 }: ModalProps) {
   useEscapeKey(open, onClose);
-
-  useEffect(() => {
-    if (open) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [open]);
+  useBodyScrollLock(open);
 
   return (
     <AnimatePresence>

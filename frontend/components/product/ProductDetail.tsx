@@ -63,9 +63,10 @@ export function ProductDetail({ product, related }: ProductDetailProps) {
         Voltar ao catálogo
       </Link>
 
-      <ProductGallery product={product} productName={product.name} />
+      <div className="lg:grid lg:grid-cols-[minmax(0,22rem)_1fr] lg:items-start lg:gap-10 xl:grid-cols-[minmax(0,26rem)_1fr]">
+        <ProductGallery product={product} productName={product.name} />
 
-      <ScrollReveal variant="slideUp" className="mt-5 space-y-5 px-0.5">
+        <ScrollReveal variant="slideUp" className="mt-5 space-y-5 px-0.5 lg:mt-0">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0 flex-1">
             {product.category && (
@@ -157,7 +158,8 @@ export function ProductDetail({ product, related }: ProductDetailProps) {
             {product.inStock ? "Adicionar ao carrinho" : "Indisponível"}
           </Button>
         </div>
-      </ScrollReveal>
+        </ScrollReveal>
+      </div>
 
       <ScrollReveal className="mt-10">
         <RelatedProducts products={related} currentSlug={product.slug} />
