@@ -60,8 +60,15 @@ npm run deploy:check
 | Variável | Obrigatória | Notas |
 |----------|-------------|-------|
 | `NEXT_PUBLIC_SITE_URL` | Sim | **`https://`** + domínio, sem barra final. Ex.: `https://catalogo-online.vercel.app`. Sem `https://` o site quebrava com 500 (corrigido no código, mas configure corretamente). |
-| `DATABASE_URL` | Sim | Pooler 6543 + pgbouncer |
-| `DIRECT_URL` | Sim | Pooler 5432 (migrations) |
+| `DATABASE_URL` | Sim | Pooler **:6543** + `?pgbouncer=true&connection_limit=1` (copiar do Supabase → ORM) |
+| `DIRECT_URL` | Sim | Pooler **:5432** session (copiar do Supabase → Direct) |
+
+**Supabase na Vercel (crítico):**
+
+- Cole as URLs **sem aspas** no painel Vercel.
+- Se a senha tiver `*`, use `%2A` na URL (ex.: `senha%2A` em vez de `senha*`).
+- Após salvar: **Redeploy** obrigatório.
+- Teste: `/api/health` deve retornar `"database": "connected"`. Se `"disconnected"`, leia o campo `databaseHint` na resposta JSON.
 | `CLOUDINARY_*` | Sim | 3 variáveis + folder |
 | `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` | Sim | Mesmo cloud name |
 | `ADMIN_API_KEY` | Sim | Token longo e aleatório |

@@ -29,7 +29,7 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-gradient-to-br from-maia-nude via-white to-maia-rose/40 p-6">
+    <main className="flex min-h-dvh min-h-screen items-center justify-center bg-[#f8f6f4] p-6">
       <form
         onSubmit={handleSubmit}
         className="w-full max-w-sm rounded-3xl border border-black/[0.06] bg-white p-8 shadow-lg"

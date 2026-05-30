@@ -86,18 +86,19 @@ const config = isDev
       dest: "public",
       register: true,
       skipWaiting: true,
-      cacheOnFrontEndNav: true,
-      aggressiveFrontEndNavCaching: true,
+      cacheOnFrontEndNav: false,
+      aggressiveFrontEndNavCaching: false,
       reloadOnOnline: true,
       fallbacks: {
         document: "/offline",
       },
       workboxOptions: {
         disableDevLogs: true,
-        navigateFallback: "/offline",
+        /** Sem fallback em navegação — evita mostrar /offline com o site online */
+        navigateFallback: null,
         navigateFallbackDenylist: [
           /^\/api/,
-          /^\/_next\/data/,
+          /^\/_next/,
           /^\/admin/,
         ],
         runtimeCaching: [
