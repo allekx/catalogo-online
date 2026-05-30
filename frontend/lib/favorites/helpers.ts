@@ -37,6 +37,31 @@ export function favoriteItemToProduct(item: FavoriteItem): Product {
   };
 }
 
+export function isValidFavoriteItem(item: unknown): item is FavoriteItem {
+  if (!item || typeof item !== "object") return false;
+  const row = item as FavoriteItem;
+  return (
+    typeof row.productId === "string" &&
+    row.productId.length > 0 &&
+    typeof row.slug === "string" &&
+    row.slug.length > 0 &&
+    typeof row.name === "string" &&
+    typeof row.price === "number" &&
+    Number.isFinite(row.price) &&
+    typeof row.imageUrl === "string" &&
+    row.imageUrl.length > 0
+  );
+}
+
+/** Remove formatos legados (IDs soltos, mocks, objetos incompletos) */
+export function sanitizeFavoriteItems(raw: unknown): FavoriteItem[] {
+  if (!Array.isArray(raw)) return [];
+
+  return raw
+    .filter(isValidFavoriteItem)
+    .filter((item) => !item.productId.startsWith("mock-"));
+}
+
 export function resolveFavoriteProducts(items: FavoriteItem[]): Product[] {
-  return items.map(favoriteItemToProduct);
+  return sanitizeFavoriteItems(items).map(favoriteItemToProduct);
 }

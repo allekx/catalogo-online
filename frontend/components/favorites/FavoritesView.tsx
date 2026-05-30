@@ -12,17 +12,37 @@ import {
   ScrollReveal,
 } from "@/design-system";
 import { fadeIn, slideUp, duration, easePremium } from "@/design-system/motion/config";
-import { resolveFavoriteProducts } from "@/lib/favorites/helpers";
+import {
+  resolveFavoriteProducts,
+  sanitizeFavoriteItems,
+} from "@/lib/favorites/helpers";
 import { ROUTES } from "@/lib/constants/routes";
 import { useFavoritesStore } from "@/store/useFavoritesStore";
 import { useCartStore } from "@/store/useCartStore";
+import { useEffect, useState } from "react";
 
 export function FavoritesView() {
-  const items = useFavoritesStore((s) =>
-    s.items.filter((i) => !i.productId.startsWith("mock-"))
-  );
+  const [ready, setReady] = useState(false);
+  const items = useFavoritesStore((s) => sanitizeFavoriteItems(s.items));
   const products = resolveFavoriteProducts(items);
   const addItem = useCartStore((s) => s.addItem);
+
+  useEffect(() => {
+    const finish = () => setReady(true);
+    if (useFavoritesStore.persist.hasHydrated()) {
+      finish();
+      return;
+    }
+    return useFavoritesStore.persist.onFinishHydration(finish);
+  }, []);
+
+  if (!ready) {
+    return (
+      <div className="rounded-2xl bg-maia-nude/40 px-4 py-8 text-center text-sm text-maia-muted">
+        Carregando...
+      </div>
+    );
+  }
 
   if (items.length === 0) {
     return (
