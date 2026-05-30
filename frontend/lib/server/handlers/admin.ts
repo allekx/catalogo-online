@@ -9,6 +9,7 @@ import {
 } from "../serializers/product";
 import { slugify, uniqueProductSlug } from "../slug";
 import { apiError, json } from "../http";
+import { requireDatabase } from "../guards";
 
 export async function adminLogin(request: NextRequest) {
   const { password } = (await request.json()) as { password?: string };
@@ -19,6 +20,9 @@ export async function adminLogin(request: NextRequest) {
 }
 
 export async function adminDashboardStats() {
+  const db = requireDatabase();
+  if (db) return db;
+
   try {
     const [
       productsCount,
@@ -282,11 +286,18 @@ export async function adminDeleteProduct(id: string) {
 }
 
 export async function adminListCategories() {
+  const db = requireDatabase();
+  if (db) return db;
+
   try {
     const categories = await prisma.category.findMany({
       where: notDeleted,
       orderBy: { sortOrder: "asc" },
-      include: { _count: { select: { products: { where: notDeleted } } } },
+      include: {
+        _count: {
+          select: { products: true },
+        },
+      },
     });
     return json(categories);
   } catch (error) {
@@ -296,6 +307,9 @@ export async function adminListCategories() {
 }
 
 export async function adminCreateCategory(request: NextRequest) {
+  const db = requireDatabase();
+  if (db) return db;
+
   try {
     const { name, slug, imageUrl, sortOrder, description } =
       (await request.json()) as {

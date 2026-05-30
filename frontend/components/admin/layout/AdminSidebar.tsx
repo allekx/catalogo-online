@@ -83,14 +83,14 @@ export function AdminSidebar() {
     <>
       <button
         type="button"
-        className="fixed left-4 top-4 z-50 flex h-10 w-10 items-center justify-center rounded-xl bg-white shadow-md lg:hidden"
+        className="fixed left-4 top-4 z-[70] flex h-10 w-10 items-center justify-center rounded-xl border border-black/[0.06] bg-white shadow-md lg:hidden"
         onClick={() => setMobileOpen(true)}
         aria-label="Abrir menu"
       >
         <Menu className="h-5 w-5" />
       </button>
 
-      <aside className="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-[var(--sidebar-width)] lg:flex-col lg:border-r lg:border-black/[0.06] lg:bg-white">
+      <aside className="admin-sidebar hidden lg:fixed lg:inset-y-0 lg:left-0 lg:z-40 lg:flex lg:w-[var(--sidebar-width)] lg:flex-col lg:border-r lg:border-black/[0.06] lg:bg-white">
         {navContent}
       </aside>
 

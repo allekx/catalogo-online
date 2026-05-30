@@ -252,3 +252,18 @@ body[data-cart-bar="true"] {
   min-height: 100dvh;
   background: #f8f6f4;
 }
+
+.admin-shell {
+  isolation: isolate;
+}
+
+.admin-shell-main {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+@media (min-width: 1024px) {
+  .admin-shell-main {
+    max-width: min(72rem, calc(100vw - var(--sidebar-width) - 4rem));
+  }
+}

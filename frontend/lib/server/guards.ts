@@ -2,6 +2,17 @@ import type { NextRequest } from "next/server";
 import { serverEnv } from "./env";
 import { apiError } from "./http";
 
+/** Falha cedo se Supabase não estiver configurado no Vercel */
+export function requireDatabase() {
+  if (!process.env.DATABASE_URL?.trim()) {
+    return apiError(
+      "Banco não configurado: defina DATABASE_URL e DIRECT_URL nas variáveis do Vercel",
+      503
+    );
+  }
+  return null;
+}
+
 export function getAdminKey(request: NextRequest): string | null {
   const header = request.headers.get("x-admin-key");
   if (header) return header;

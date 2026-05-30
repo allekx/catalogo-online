@@ -35,9 +35,9 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="min-h-screen lg:pl-[var(--sidebar-width)]">
+    <div className="admin-shell min-h-dvh lg:pl-[var(--sidebar-width)]">
       <AdminSidebar />
-      <main className="min-h-screen px-4 pb-8 pt-16 lg:px-8 lg:pt-8">
+      <main className="admin-shell-main min-h-dvh w-full max-w-6xl px-4 pb-10 pt-16 lg:px-8 lg:pt-8">
         {children}
       </main>
     </div>

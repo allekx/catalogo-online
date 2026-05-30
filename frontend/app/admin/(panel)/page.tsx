@@ -20,7 +20,13 @@ export default function DashboardPage() {
     adminApi
       .dashboard()
       .then(setStats)
-      .catch((e) => setError(e instanceof Error ? e.message : "Erro"));
+      .catch((e) =>
+        setError(
+          e instanceof Error
+            ? e.message
+            : "Erro ao carregar dashboard"
+        )
+      );
   }, []);
 
   const cards = stats

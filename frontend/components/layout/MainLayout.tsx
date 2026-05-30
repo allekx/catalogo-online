@@ -18,6 +18,12 @@ interface MainLayoutProps {
 
 export function MainLayout({ children }: MainLayoutProps) {
   const pathname = usePathname();
+  const isAdminArea = pathname.startsWith("/admin");
+
+  if (isAdminArea) {
+    return <>{children}</>;
+  }
+
   const itemCount = useCartStore((s) => s.itemCount);
   const showCartBar =
     itemCount > 0 && pathname !== ROUTES.cart;
