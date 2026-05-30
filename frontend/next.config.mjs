@@ -1,11 +1,18 @@
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import withPWA from "@ducanh2912/next-pwa";
 
 const isDev = process.env.NODE_ENV === "development";
+const projectDir = path.dirname(fileURLToPath(import.meta.url));
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  webpack: (config) => {
+    config.resolve.alias["@"] = projectDir;
+    return config;
+  },
   images: {
     formats: ["image/avif", "image/webp"],
     deviceSizes: [375, 390, 414, 428, 640, 750, 828, 1080, 1200],

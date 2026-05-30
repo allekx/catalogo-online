@@ -1,8 +1,12 @@
-/** Nome do cookie lido pelo middleware (proteção server-side) */
-export const ADMIN_COOKIE_NAME = "le-maia-admin-token";
+import {
+  ADMIN_COOKIE_NAME,
+  ADMIN_SESSION_MAX_AGE_SEC,
+} from "./constants";
+
+export { ADMIN_COOKIE_NAME } from "./constants";
 
 const TOKEN_KEY = ADMIN_COOKIE_NAME;
-const SESSION_MAX_AGE_SEC = 60 * 60 * 24 * 7;
+const SESSION_MAX_AGE_SEC = ADMIN_SESSION_MAX_AGE_SEC;
 
 function setSessionCookie(token: string) {
   const secure =
