@@ -146,6 +146,10 @@ Teste após deploy:
 - `https://seu-dominio.vercel.app/api/health` → `"database": "connected"`
 - `https://seu-dominio.vercel.app/` → home do catálogo
 
+### Build: `Can't resolve './lib/admin/constants'` no middleware
+
+O `.vercelignore` na raiz não pode usar o padrão `admin` solto — isso exclui **`frontend/lib/admin/`** do deploy. Use apenas `/admin` (pasta legado na raiz do repo).
+
 ### Submodule warning (`Failed to fetch git submodules`)
 
 Isso acontecia porque a pasta `frontend/` estava registrada como **submódulo Git** (só o commit vazio do Create Next App ia para o GitHub). A correção é versionar `frontend/` como pasta normal (sem `frontend/.git`) e fazer **push** de novo.

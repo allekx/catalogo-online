@@ -1,3 +1,4 @@
-backend
-admin
+# Legado na raiz do monorepo (não confundir com frontend/lib/admin)
+/backend
+/admin
 .git
