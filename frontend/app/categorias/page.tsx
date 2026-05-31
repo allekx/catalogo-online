@@ -15,7 +15,7 @@ export default function CategoriesPage() {
         Categorias
       </Typography>
       <Typography variant="body-sm" className="mb-6 text-maia-muted">
-        Explore por tipo de produto — categorias cadastradas no painel
+        Explore por tipo de produto
       </Typography>
 
       {loading ? (
