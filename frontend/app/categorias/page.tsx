@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Typography } from "@/design-system";
-import { MotionPress, StaggerReveal, StaggerItem } from "@/design-system/motion";
+import { MotionPress } from "@/design-system/motion";
 import { useCatalogCategories } from "@/hooks/useCatalogCategories";
 import { ROUTES } from "@/lib/constants/routes";
 
@@ -25,9 +25,9 @@ export default function CategoriesPage() {
           Nenhuma categoria ativa ainda.
         </p>
       ) : (
-        <StaggerReveal stagger={0.05} className="grid grid-cols-2 gap-3">
+        <ul className="m-0 grid list-none grid-cols-2 gap-3 p-0" role="list">
           {categories.map((cat) => (
-            <StaggerItem key={cat.slug}>
+            <li key={cat.slug} className="list-none">
               <MotionPress hover className="h-full">
                 <Link
                   href={`${ROUTES.catalog}?categoria=${encodeURIComponent(cat.slug)}`}
@@ -41,9 +41,9 @@ export default function CategoriesPage() {
                   </span>
                 </Link>
               </MotionPress>
-            </StaggerItem>
+            </li>
           ))}
-        </StaggerReveal>
+        </ul>
       )}
     </div>
   );

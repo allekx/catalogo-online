@@ -1,6 +1,7 @@
 "use client";
 
-import { ProductCard, toast } from "@/design-system";
+import { useMemo } from "react";
+import { ProductCard, toast, ProductGridSkeleton } from "@/design-system";
 import {
   favoriteItemToProduct,
   sanitizeFavoriteItems,
@@ -9,19 +10,14 @@ import { useFavoritesHydrated } from "@/hooks/useFavoritesHydrated";
 import { useFavoritesStore } from "@/store/useFavoritesStore";
 import { useCartStore } from "@/store/useCartStore";
 import { FavoritesEmptyState } from "./FavoritesEmptyState";
-import { ProductGridSkeleton } from "@/design-system";
-
-function selectFavoriteItems(state: { items?: unknown }) {
-  try {
-    return sanitizeFavoriteItems(state.items ?? []);
-  } catch {
-    return [];
-  }
-}
 
 export function FavoritesView() {
   const hydrated = useFavoritesHydrated();
-  const items = useFavoritesStore(selectFavoriteItems);
+  const rawItems = useFavoritesStore((s) => s.items);
+  const items = useMemo(
+    () => sanitizeFavoriteItems(rawItems ?? []),
+    [rawItems]
+  );
   const addItem = useCartStore((s) => s.addItem);
 
   if (!hydrated) {

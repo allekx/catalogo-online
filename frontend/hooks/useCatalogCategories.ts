@@ -16,11 +16,9 @@ function mapApiCategories(rows: ApiCategoryPayload[]): CatalogCategoryOption[] {
   }));
 }
 
-/** Categorias do banco; fallback estático se a API falhar */
+/** Categorias do banco; fallback estático só se a API falhar */
 export function useCatalogCategories() {
-  const [categories, setCategories] = useState<CatalogCategoryOption[]>(
-    [...CATALOG_CATEGORIES]
-  );
+  const [categories, setCategories] = useState<CatalogCategoryOption[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -29,11 +27,17 @@ export function useCatalogCategories() {
     api.categories
       .list()
       .then((rows) => {
-        if (cancelled || !rows?.length) return;
-        setCategories(mapApiCategories(rows));
+        if (cancelled) return;
+        if (Array.isArray(rows) && rows.length > 0) {
+          setCategories(mapApiCategories(rows));
+        } else {
+          setCategories([]);
+        }
       })
       .catch(() => {
-        /* mantém fallback */
+        if (!cancelled) {
+          setCategories([...CATALOG_CATEGORIES]);
+        }
       })
       .finally(() => {
         if (!cancelled) setLoading(false);

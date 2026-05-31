@@ -90,5 +90,5 @@ export const useFavoritesStore = create<FavoritesState>()(
 
 /** Contagem para badge na navegação */
 export function useFavoriteCount() {
-  return useFavoritesStore((s) => sanitizeFavoriteItems(s.items ?? []).length);
+  return useFavoritesStore((s) => (s.items ?? []).length);
 }

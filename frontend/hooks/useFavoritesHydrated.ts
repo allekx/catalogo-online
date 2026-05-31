@@ -3,21 +3,28 @@
 import { useEffect, useState } from "react";
 import { useFavoritesStore } from "@/store/useFavoritesStore";
 
-/** Aguarda o Zustand persist carregar do localStorage antes de mostrar lista vazia */
+/** Aguarda o persist do Zustand antes de mostrar lista vazia */
 export function useFavoritesHydrated() {
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
-    const store = useFavoritesStore.persist;
+    const persist = useFavoritesStore.persist;
 
-    if (store.hasHydrated()) {
+    if (!persist?.onFinishHydration) {
       setHydrated(true);
       return;
     }
 
-    return store.onFinishHydration(() => {
+    if (typeof persist.hasHydrated === "function" && persist.hasHydrated()) {
+      setHydrated(true);
+      return;
+    }
+
+    const unsub = persist.onFinishHydration(() => {
       setHydrated(true);
     });
+
+    return unsub;
   }, []);
 
   return hydrated;
