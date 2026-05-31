@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useCallback, useState } from "react";
+import { useEffect, useCallback } from "react";
 import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -10,9 +10,7 @@ import { useAppStore } from "@/store/useAppStore";
 import { InstagramIcon } from "@/components/icons/InstagramIcon";
 import { MOBILE_MENU_SECTIONS, type MenuItem } from "@/lib/constants/menu";
 import { buildGreetingMessage, openWhatsApp } from "@/lib/whatsapp";
-import { InstallAppHintDialog } from "@/components/pwa/InstallAppHintDialog";
 import { usePwaInstall } from "@/hooks/usePwaInstall";
-import type { PwaInstallResult } from "@/hooks/usePwaInstall";
 import { cn } from "@/lib/utils/cn";
 import { easings } from "@/design-system/tokens/animations";
 
@@ -156,27 +154,12 @@ function MenuLink({
 export function MobileMenu() {
   const pathname = usePathname();
   const { isMenuOpen, setMenuOpen } = useAppStore();
-  const { requestInstall } = usePwaInstall();
-  const [installHint, setInstallHint] = useState<{
-    open: boolean;
-    variant: Extract<
-      PwaInstallResult,
-      "ios-instructions" | "manual-instructions" | "already-installed"
-    >;
-  }>({ open: false, variant: "manual-instructions" });
-
+  const { requestInstall, canNativePrompt, isStandalone } = usePwaInstall();
   const close = useCallback(() => setMenuOpen(false), [setMenuOpen]);
   useBodyScrollLock(isMenuOpen);
 
   const handleInstallApp = useCallback(async () => {
-    const result = await requestInstall();
-    if (
-      result === "ios-instructions" ||
-      result === "manual-instructions" ||
-      result === "already-installed"
-    ) {
-      setInstallHint({ open: true, variant: result });
-    }
+    await requestInstall();
   }, [requestInstall]);
 
   useEffect(() => {
@@ -272,15 +255,21 @@ export function MobileMenu() {
                     animate="open"
                     className="space-y-0.5"
                   >
-                    {section.items.map((item) => (
-                      <MenuLink
-                        key={item.id}
-                        item={item}
-                        isActive={isActivePath(pathname, item.href)}
-                        onNavigate={close}
-                        onInstallApp={handleInstallApp}
-                      />
-                    ))}
+                    {section.items
+                      .filter(
+                        (item) =>
+                          item.id !== "install-app" ||
+                          (canNativePrompt && !isStandalone)
+                      )
+                      .map((item) => (
+                        <MenuLink
+                          key={item.id}
+                          item={item}
+                          isActive={isActivePath(pathname, item.href)}
+                          onNavigate={close}
+                          onInstallApp={handleInstallApp}
+                        />
+                      ))}
                   </motion.ul>
                 </div>
               ))}
@@ -295,11 +284,6 @@ export function MobileMenu() {
           </motion.aside>
         </div>
       )}
-      <InstallAppHintDialog
-        open={installHint.open}
-        variant={installHint.variant}
-        onClose={() => setInstallHint((s) => ({ ...s, open: false }))}
-      />
     </AnimatePresence>
   );
 }
