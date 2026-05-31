@@ -2,12 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import {
-  MessageCircle,
-  ShoppingBag,
-  Sparkles,
-  ArrowLeft,
-} from "lucide-react";
+import { MessageCircle, ShoppingBag, Sparkles } from "lucide-react";
+import { CatalogBackLink } from "./CatalogBackLink";
 import { FavoriteButton } from "@/components/favorites/FavoriteButton";
 import {
   Button,
@@ -54,14 +50,8 @@ export function ProductDetail({ product, related }: ProductDetailProps) {
   };
 
   return (
-    <article className="-mt-2">
-      <Link
-        href={ROUTES.catalog}
-        className="mb-3 inline-flex items-center gap-1.5 font-display text-sm font-medium text-maia-muted active:text-maia-orange"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        Voltar ao catálogo
-      </Link>
+    <article>
+      <CatalogBackLink />
 
       <div className="lg:grid lg:grid-cols-[minmax(0,22rem)_1fr] lg:items-start lg:gap-10 xl:grid-cols-[minmax(0,26rem)_1fr]">
         <ProductGallery product={product} productName={product.name} />
