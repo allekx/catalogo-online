@@ -15,7 +15,7 @@ export async function listCategories() {
         },
       },
     });
-    return json(categories, 200, cacheHeaders(300, 1800));
+    return json(categories, 200, cacheHeaders(60, 120));
   } catch (error) {
     console.error("[api/categories]", error);
     return apiError("Erro ao buscar categorias", 500);

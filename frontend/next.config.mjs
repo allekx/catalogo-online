@@ -125,6 +125,10 @@ const config = isDev
             },
           },
           {
+            urlPattern: /\/api\/(products|categories)(\/|$|\?)/i,
+            handler: "NetworkOnly",
+          },
+          {
             urlPattern: /\/api\//i,
             handler: "NetworkFirst",
             options: {

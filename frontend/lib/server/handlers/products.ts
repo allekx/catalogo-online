@@ -38,7 +38,7 @@ export async function listProducts(request: NextRequest) {
       orderBy: [{ featured: "desc" }, { createdAt: "desc" }],
     });
 
-    return json(products.map(serializeProduct), 200, cacheHeaders(120, 600));
+    return json(products.map(serializeProduct), 200, cacheHeaders(30, 60));
   } catch (error) {
     console.error("[api/products]", error);
     return apiError("Erro ao buscar produtos", 500);
@@ -59,7 +59,7 @@ export async function getProduct(slug: string) {
       data: { viewCount: { increment: 1 } },
     });
 
-    return json(serializeProduct(product), 200, cacheHeaders(60, 300));
+    return json(serializeProduct(product), 200, cacheHeaders(30, 60));
   } catch (error) {
     console.error("[api/product]", error);
     return apiError("Erro interno", 500);
@@ -89,7 +89,7 @@ export async function getRelatedProducts(slug: string, request: NextRequest) {
       orderBy: [{ featured: "desc" }, { createdAt: "desc" }],
     });
 
-    return json(related.map(serializeProduct), 200, cacheHeaders(120, 600));
+    return json(related.map(serializeProduct), 200, cacheHeaders(30, 60));
   } catch (error) {
     console.error("[api/products/related]", error);
     return apiError("Erro ao buscar relacionados", 500);

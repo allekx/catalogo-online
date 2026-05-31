@@ -44,6 +44,7 @@ export const api = {
       destaque?: string;
     }) =>
       apiClient<ApiProductPayload[]>("/products", {
+        cache: "no-store",
         params: params
           ? Object.fromEntries(
               Object.entries(params).filter(([, v]) => v != null && v !== "")
@@ -58,7 +59,8 @@ export const api = {
       }),
   },
   categories: {
-    list: () => apiClient<ApiCategoryPayload[]>("/categories"),
+    list: () =>
+      apiClient<ApiCategoryPayload[]>("/categories", { cache: "no-store" }),
   },
   health: () => apiClient<HealthResponse>("/health"),
 };

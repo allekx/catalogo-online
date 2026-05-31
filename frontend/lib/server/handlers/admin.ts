@@ -10,6 +10,7 @@ import {
 import { slugify, uniqueProductSlug } from "../slug";
 import { apiError, json } from "../http";
 import { requireDatabase } from "../guards";
+import { revalidateCatalogData } from "../revalidate-catalog";
 
 export async function adminLogin(request: NextRequest) {
   const { password } = (await request.json()) as { password?: string };
@@ -174,6 +175,7 @@ export async function adminCreateProduct(request: NextRequest) {
       include: productWithImagesInclude,
     });
 
+    revalidateCatalogData(product.slug);
     return json(serializeAdminProduct(product), 201);
   } catch (error) {
     console.error("[admin/products create]", error);
@@ -243,6 +245,10 @@ export async function adminUpdateProduct(id: string, request: NextRequest) {
       include: productWithImagesInclude,
     });
 
+    revalidateCatalogData(refreshed.slug);
+    if (existing.slug !== refreshed.slug) {
+      revalidateCatalogData(existing.slug);
+    }
     return json(serializeAdminProduct(refreshed));
   } catch (error) {
     console.error("[admin/products update]", error);
@@ -278,6 +284,7 @@ export async function adminDeleteProduct(id: string) {
       }),
     ]);
 
+    revalidateCatalogData(existing.slug);
     return json({ success: true });
   } catch (error) {
     console.error("[admin/products delete]", error);
@@ -295,7 +302,7 @@ export async function adminListCategories() {
       orderBy: { sortOrder: "asc" },
       include: {
         _count: {
-          select: { products: true },
+          select: { products: { where: notDeleted } },
         },
       },
     });
@@ -330,6 +337,7 @@ export async function adminCreateCategory(request: NextRequest) {
         sortOrder: sortOrder ?? 0,
       },
     });
+    revalidateCatalogData();
     return json(category, 201);
   } catch (error) {
     console.error("[admin/categories create]", error);
@@ -359,6 +367,7 @@ export async function adminUpdateCategory(id: string, request: NextRequest) {
         ...(active !== undefined ? { active } : {}),
       },
     });
+    revalidateCatalogData();
     return json(category);
   } catch (error) {
     console.error("[admin/categories update]", error);
@@ -391,6 +400,7 @@ export async function adminDeleteCategory(id: string) {
       },
     });
 
+    revalidateCatalogData();
     return json({ success: true });
   } catch (error) {
     console.error("[admin/categories delete]", error);

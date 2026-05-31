@@ -22,16 +22,25 @@ export function HomeProductsSection({
   const addItem = useCartStore((s) => s.addItem);
 
   useEffect(() => {
-    if (initialProducts.length > 0) return;
+    let cancelled = false;
+    const silentRefresh = initialProducts.length > 0;
+    if (!silentRefresh) setLoading(true);
 
     fetchProducts()
       .then((data) => {
+        if (cancelled) return;
         const featured = data.filter((p) => p.featured);
         setProducts(
           (featured.length > 0 ? featured : data).slice(0, 6)
         );
       })
-      .finally(() => setLoading(false));
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, [initialProducts.length]);
 
   return (

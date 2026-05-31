@@ -105,11 +105,7 @@ export default function CategoriesPage() {
     }
   };
 
-  const handleDelete = async (id: string, catName: string, count: number) => {
-    if (count > 0) {
-      alert("Remova os produtos desta categoria antes de excluir.");
-      return;
-    }
+  const handleDelete = async (id: string, catName: string) => {
     if (!confirm(`Excluir categoria "${catName}"?`)) return;
     setError("");
     try {
@@ -243,9 +239,7 @@ export default function CategoriesPage() {
               </div>
               <button
                 type="button"
-                onClick={() =>
-                  handleDelete(c.id, c.name, c._count?.products ?? 0)
-                }
+                onClick={() => handleDelete(c.id, c.name)}
                 className="btn-danger shrink-0 !px-2.5 !py-2"
               >
                 <Trash2 className="h-4 w-4" />
