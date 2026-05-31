@@ -14,7 +14,7 @@ export default function CartPage() {
       </Typography>
       <Typography variant="body-sm" className="mb-6 text-maia-muted">
         {itemCount > 0
-          ? `${itemCount} ${itemCount === 1 ? "item no pedido" : "itens no pedido"} — salvo automaticamente`
+          ? `${itemCount} ${itemCount === 1 ? "item no pedido" : "itens no pedido"}`
           : "Seus itens ficam salvos neste dispositivo"}
       </Typography>
       <CartView variant="page" />

@@ -12,5 +12,5 @@ export const SOCIAL = {
   },
   instagram:
     process.env.NEXT_PUBLIC_INSTAGRAM_URL ??
-    "https://instagram.com/lemaia",
+    "https://www.instagram.com/le_maia_oficial/",
 } as const;

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { CategoryThumbnail } from "@/components/catalog/CategoryThumbnail";
 import { Typography } from "@/design-system";
 import { MotionPress } from "@/design-system/motion";
 import { useCatalogCategories } from "@/hooks/useCatalogCategories";
@@ -33,9 +34,7 @@ export default function CategoriesPage() {
                   href={`${ROUTES.catalog}?categoria=${encodeURIComponent(cat.slug)}`}
                   className="flex h-full flex-col items-center gap-3 rounded-3xl bg-white p-6 shadow-card"
                 >
-                  <span className="flex h-16 w-16 items-center justify-center rounded-full bg-maia-nude/80 font-display text-2xl font-bold text-maia-orange shadow-sm">
-                    {cat.name.charAt(0).toUpperCase()}
-                  </span>
+                  <CategoryThumbnail name={cat.name} imageUrl={cat.imageUrl} size="md" />
                   <span className="text-center font-display text-sm font-semibold text-maia-text">
                     {cat.name}
                   </span>

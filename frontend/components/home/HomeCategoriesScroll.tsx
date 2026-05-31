@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { CategoryThumbnail } from "@/components/catalog/CategoryThumbnail";
 import { MotionPress } from "@/design-system/motion";
 import { useCatalogCategories } from "@/hooks/useCatalogCategories";
 import { ROUTES } from "@/lib/constants/routes";
@@ -49,15 +50,14 @@ export function HomeCategoriesScroll() {
                     href={`${ROUTES.catalog}?categoria=${encodeURIComponent(cat.slug)}`}
                     className="group flex w-[4.5rem] flex-col items-center gap-2 sm:w-[5rem]"
                   >
-                    <span
+                    <CategoryThumbnail
+                      name={cat.name}
+                      imageUrl={cat.imageUrl}
                       className={cn(
-                        "flex h-[4.25rem] w-[4.25rem] items-center justify-center rounded-full font-display text-xl font-bold text-maia-orange shadow-sm",
-                        "bg-maia-nude/80 ring-1 ring-maia-text/[0.04] transition-transform duration-300",
-                        "group-active:scale-95 group-hover:scale-105 sm:h-[4.75rem] sm:w-[4.75rem] sm:text-2xl"
+                        "transition-transform duration-300",
+                        "group-active:scale-95 group-hover:scale-105"
                       )}
-                    >
-                      {cat.name.charAt(0).toUpperCase()}
-                    </span>
+                    />
                     <span className="max-w-[4.5rem] truncate text-center font-display text-[11px] font-medium text-maia-text">
                       {cat.name}
                     </span>

@@ -6,13 +6,19 @@ import { normalizeCatalogSlug } from "@/lib/catalog/slug";
 import { api } from "@/services/api";
 import type { ApiCategoryPayload } from "@/lib/products/api-types";
 
-export type CatalogCategoryOption = { slug: string; name: string; id?: string };
+export type CatalogCategoryOption = {
+  slug: string;
+  name: string;
+  id?: string;
+  imageUrl?: string | null;
+};
 
 function mapApiCategories(rows: ApiCategoryPayload[]): CatalogCategoryOption[] {
   return rows.map((c) => ({
     id: c.id,
     slug: c.slug,
     name: c.name,
+    imageUrl: c.imageUrl ?? null,
   }));
 }
 
