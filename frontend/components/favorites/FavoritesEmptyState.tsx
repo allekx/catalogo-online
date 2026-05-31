@@ -25,8 +25,7 @@ export function FavoritesEmptyState({
         Sua seleção especial começa aqui
       </Typography>
       <Typography variant="body-sm" className="mt-2 max-w-sm text-maia-muted">
-        Explore o catálogo e toque no coração nas peças que mais amou. Elas ficam
-        guardadas neste aparelho — sem cadastro, no seu ritmo.
+        Explore o catálogo e toque no coração nas peças que mais amou.
       </Typography>
       <Link href={ROUTES.catalog} className="mt-6 w-full max-w-xs">
         <Button variant="primary" fullWidth>
