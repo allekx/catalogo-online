@@ -18,27 +18,18 @@ export function CatalogBackLink({
     <Link
       href={ROUTES.catalog}
       className={cn(
-        "group mb-4 inline-flex min-h-[44px] max-w-full items-center gap-2.5 rounded-2xl",
-        "border border-maia-rose/45 bg-white/95 px-2.5 py-2 pr-4 shadow-sm backdrop-blur-sm",
-        "transition-all duration-200",
-        "hover:border-maia-orange/35 hover:bg-maia-nude/50 hover:shadow-card",
-        "active:scale-[0.98]",
+        "group -ml-0.5 mb-2 inline-flex min-h-[40px] items-center gap-0.5 py-1",
+        "font-display text-xs font-medium text-maia-light",
+        "transition-colors duration-200 hover:text-maia-orange active:opacity-70",
         className
       )}
     >
-      <span
-        className={cn(
-          "flex h-8 w-8 shrink-0 items-center justify-center rounded-xl",
-          "bg-maia-nude/80 text-maia-orange transition-colors duration-200",
-          "group-hover:bg-maia-orange/12"
-        )}
+      <ChevronLeft
+        className="h-3.5 w-3.5 shrink-0 opacity-60 transition-opacity group-hover:opacity-100"
+        strokeWidth={2}
         aria-hidden
-      >
-        <ChevronLeft className="h-4 w-4" strokeWidth={2.25} />
-      </span>
-      <span className="font-display text-[13px] font-medium leading-snug text-maia-text transition-colors duration-200 group-hover:text-maia-orange">
-        {label}
-      </span>
+      />
+      <span>{label}</span>
     </Link>
   );
 }
