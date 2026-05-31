@@ -3,7 +3,6 @@
 import { useState } from "react";
 import Link from "next/link";
 import { MessageCircle, ShoppingBag, Sparkles } from "lucide-react";
-import { CatalogBackLink } from "./CatalogBackLink";
 import { FavoriteButton } from "@/components/favorites/FavoriteButton";
 import {
   Button,
@@ -51,8 +50,6 @@ export function ProductDetail({ product, related }: ProductDetailProps) {
 
   return (
     <article>
-      <CatalogBackLink />
-
       <div className="lg:grid lg:grid-cols-[minmax(0,22rem)_1fr] lg:items-start lg:gap-10 xl:grid-cols-[minmax(0,26rem)_1fr]">
         <ProductGallery product={product} productName={product.name} />
 
