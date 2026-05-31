@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { adminApi, ApiError } from "@/lib/admin/api";
+import { AdminInstallAppButton } from "@/components/admin/AdminInstallAppButton";
 import { setAdminToken } from "@/lib/admin/auth";
 
 export default function LoginPage() {
@@ -63,6 +64,8 @@ export default function LoginPage() {
         >
           {loading ? "Entrando..." : "Entrar"}
         </button>
+
+        <AdminInstallAppButton />
       </form>
     </main>
   );

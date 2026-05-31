@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { Download, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/design-system";
@@ -9,6 +10,7 @@ import { usePwaInstall } from "@/hooks/usePwaInstall";
 import { usePwaInstallStore } from "@/store/usePwaInstallStore";
 
 export function InstallPrompt() {
+  const pathname = usePathname();
   const deferred = usePwaInstallStore((s) => s.deferred);
   const { requestInstall } = usePwaInstall();
   const [dismissed, setDismissed] = useState(true);
@@ -40,7 +42,7 @@ export function InstallPrompt() {
     }
   }, [deferred, dismiss, requestInstall]);
 
-  if (dismissed || !deferred) return null;
+  if (pathname.startsWith("/admin") || dismissed || !deferred) return null;
 
   return (
     <AnimatePresence>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { Share } from "lucide-react";
 import { PWA_CONFIG, PWA_STORAGE_KEYS } from "@/lib/pwa/config";
 
@@ -16,16 +17,18 @@ function isIosSafari(): boolean {
 
 /** Dica para instalar no iOS (Safari não dispara beforeinstallprompt) */
 export function IosInstallHint() {
+  const pathname = usePathname();
   const [show, setShow] = useState(false);
 
   useEffect(() => {
+    if (pathname.startsWith("/admin")) return;
     if (!isIosSafari()) return;
     if (localStorage.getItem(PWA_STORAGE_KEYS.installDismissed)) return;
     const t = setTimeout(() => setShow(true), 4000);
     return () => clearTimeout(t);
-  }, []);
+  }, [pathname]);
 
-  if (!show) return null;
+  if (pathname.startsWith("/admin") || !show) return null;
 
   return (
     <div

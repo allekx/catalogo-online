@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback } from "react";
+import { ADMIN_PWA_CONFIG } from "@/lib/pwa/admin-config";
 import { PWA_CONFIG } from "@/lib/pwa/config";
 import {
   isIosSafari,
@@ -15,12 +16,27 @@ export type PwaInstallResult =
   | "manual-instructions"
   | "unavailable";
 
-export function usePwaInstall() {
+type UsePwaInstallOptions = {
+  /** `admin` = app do painel (manifest /admin); padrão = catálogo */
+  variant?: "catalog" | "admin";
+};
+
+function isAdminStandalone(): boolean {
+  if (!isStandalonePwa() || typeof window === "undefined") return false;
+  return window.location.pathname.startsWith("/admin");
+}
+
+export function usePwaInstall(options: UsePwaInstallOptions = {}) {
+  const variant = options.variant ?? "catalog";
   const deferred = usePwaInstallStore((s) => s.deferred);
   const setDeferred = usePwaInstallStore((s) => s.setDeferred);
+  const appName =
+    variant === "admin" ? ADMIN_PWA_CONFIG.shortName : PWA_CONFIG.shortName;
 
   const requestInstall = useCallback(async (): Promise<PwaInstallResult> => {
-    if (isStandalonePwa()) return "already-installed";
+    if (variant === "admin" ? isAdminStandalone() : isStandalonePwa()) {
+      return "already-installed";
+    }
 
     if (deferred) {
       await deferred.prompt();
@@ -32,13 +48,14 @@ export function usePwaInstall() {
     if (isIosSafari()) return "ios-instructions";
 
     return "manual-instructions";
-  }, [deferred, setDeferred]);
+  }, [deferred, setDeferred, variant]);
 
   return {
     canNativePrompt: Boolean(deferred),
-    isStandalone: isStandalonePwa(),
+    isStandalone:
+      variant === "admin" ? isAdminStandalone() : isStandalonePwa(),
     isIos: isIosSafari(),
-    appName: PWA_CONFIG.shortName,
+    appName,
     requestInstall,
   };
 }

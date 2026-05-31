@@ -1,32 +1,10 @@
 import type { MetadataRoute } from "next";
-import { PWA_CONFIG, PWA_ICON_SIZES } from "@/lib/pwa/config";
+import { PWA_CONFIG } from "@/lib/pwa/config";
+import { buildManifestIcons } from "@/lib/pwa/manifest-json";
 
 export default function manifest(): MetadataRoute.Manifest {
-  const icons: MetadataRoute.Manifest["icons"] = [
-    {
-      src: "/icons/icon.svg",
-      sizes: "any",
-      type: "image/svg+xml",
-      purpose: "any",
-    },
-    ...PWA_ICON_SIZES.flatMap((size) => [
-      {
-        src: `/icons/${size}`,
-        sizes: `${size}x${size}`,
-        type: "image/png",
-        purpose: "any" as const,
-      },
-      {
-        src: `/icons/${size}?maskable=1`,
-        sizes: `${size}x${size}`,
-        type: "image/png",
-        purpose: "maskable" as const,
-      },
-    ]),
-  ];
-
   return {
-    id: PWA_CONFIG.scope,
+    id: "/catalogo",
     name: PWA_CONFIG.name,
     short_name: PWA_CONFIG.shortName,
     description: PWA_CONFIG.description,
@@ -40,7 +18,7 @@ export default function manifest(): MetadataRoute.Manifest {
     background_color: PWA_CONFIG.backgroundColor,
     categories: [...PWA_CONFIG.categories],
     prefer_related_applications: false,
-    icons,
+    icons: buildManifestIcons(),
     screenshots: [],
   };
 }

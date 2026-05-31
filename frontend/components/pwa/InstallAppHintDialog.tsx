@@ -8,12 +8,14 @@ import type { PwaInstallResult } from "@/hooks/usePwaInstall";
 type InstallAppHintDialogProps = {
   open: boolean;
   variant: Extract<PwaInstallResult, "ios-instructions" | "manual-instructions" | "already-installed">;
+  appName?: string;
   onClose: () => void;
 };
 
 export function InstallAppHintDialog({
   open,
   variant,
+  appName = PWA_CONFIG.shortName,
   onClose,
 }: InstallAppHintDialogProps) {
   const isIos = variant === "ios-instructions";
@@ -26,7 +28,7 @@ export function InstallAppHintDialog({
           className="fixed inset-0 z-[100] flex items-end justify-center p-4 sm:items-center"
           role="dialog"
           aria-modal="true"
-          aria-label={`Instalar ${PWA_CONFIG.shortName}`}
+          aria-label={`Instalar ${appName}`}
         >
           <motion.button
             type="button"
@@ -58,8 +60,8 @@ export function InstallAppHintDialog({
 
             <h2 className="mt-3 font-display text-base font-semibold text-maia-text">
               {isInstalled
-                ? `${PWA_CONFIG.shortName} já está instalado`
-                : `Instalar ${PWA_CONFIG.shortName}`}
+                ? `${appName} já está instalado`
+                : `Instalar ${appName}`}
             </h2>
 
             <p className="mt-2 font-body text-sm leading-relaxed text-maia-muted">
