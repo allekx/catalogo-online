@@ -8,18 +8,22 @@ import {
   Sparkles,
   Heart,
   MessageCircle,
+  Download,
 } from "lucide-react";
 import { ROUTES } from "./routes";
 import { SOCIAL } from "./social";
 
-export type MenuItemType = "link" | "external";
+export type MenuItemType = "link" | "external" | "action";
+export type MenuItemAction = "install-pwa";
+
 export interface MenuItem {
   id: string;
   label: string;
   href: string;
   icon: LucideIcon;
   type: MenuItemType;
-  accent?: "whatsapp" | "instagram";
+  action?: MenuItemAction;
+  accent?: "whatsapp" | "instagram" | "app";
 }
 
 export interface MenuSection {
@@ -116,6 +120,15 @@ export const MOBILE_MENU_SECTIONS: MenuSection[] = [
         icon: Sparkles,
         type: "external",
         accent: "instagram",
+      },
+      {
+        id: "install-app",
+        label: "Baixar app Le Maia",
+        href: "#",
+        icon: Download,
+        type: "action",
+        action: "install-pwa",
+        accent: "app",
       },
     ],
   },

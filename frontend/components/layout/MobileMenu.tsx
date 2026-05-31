@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useCallback } from "react";
+import { useEffect, useCallback, useState } from "react";
 import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -10,6 +10,9 @@ import { useAppStore } from "@/store/useAppStore";
 import { InstagramIcon } from "@/components/icons/InstagramIcon";
 import { MOBILE_MENU_SECTIONS, type MenuItem } from "@/lib/constants/menu";
 import { buildGreetingMessage, openWhatsApp } from "@/lib/whatsapp";
+import { InstallAppHintDialog } from "@/components/pwa/InstallAppHintDialog";
+import { usePwaInstall } from "@/hooks/usePwaInstall";
+import type { PwaInstallResult } from "@/hooks/usePwaInstall";
 import { cn } from "@/lib/utils/cn";
 import { easings } from "@/design-system/tokens/animations";
 
@@ -45,13 +48,16 @@ function MenuLink({
   item,
   isActive,
   onNavigate,
+  onInstallApp,
 }: {
   item: MenuItem;
   isActive: boolean;
   onNavigate: () => void;
+  onInstallApp: () => void;
 }) {
   const Icon = item.icon;
   const isExternal = item.type === "external";
+  const isAction = item.type === "action";
 
   function renderIcon() {
     if (item.id === "instagram") return <InstagramIcon />;
@@ -62,6 +68,7 @@ function MenuLink({
     whatsapp: "bg-[#25D366]/10 text-[#25D366]",
     instagram:
       "bg-gradient-to-br from-[#F58529]/15 via-[#DD2A7B]/15 to-[#8134AF]/15 text-[#DD2A7B]",
+    app: "bg-maia-orange/10 text-maia-orange",
   };
 
   const content = (
@@ -101,6 +108,23 @@ function MenuLink({
     isActive && !item.accent && "bg-maia-nude/50"
   );
 
+  if (isAction && item.action === "install-pwa") {
+    return (
+      <motion.li variants={itemVariants}>
+        <button
+          type="button"
+          onClick={() => {
+            onInstallApp();
+            onNavigate();
+          }}
+          className={className}
+        >
+          {content}
+        </button>
+      </motion.li>
+    );
+  }
+
   if (isExternal) {
     const handleExternal = () => {
       if (item.id === "whatsapp") {
@@ -132,9 +156,28 @@ function MenuLink({
 export function MobileMenu() {
   const pathname = usePathname();
   const { isMenuOpen, setMenuOpen } = useAppStore();
+  const { requestInstall } = usePwaInstall();
+  const [installHint, setInstallHint] = useState<{
+    open: boolean;
+    variant: Extract<
+      PwaInstallResult,
+      "ios-instructions" | "manual-instructions" | "already-installed"
+    >;
+  }>({ open: false, variant: "manual-instructions" });
 
   const close = useCallback(() => setMenuOpen(false), [setMenuOpen]);
   useBodyScrollLock(isMenuOpen);
+
+  const handleInstallApp = useCallback(async () => {
+    const result = await requestInstall();
+    if (
+      result === "ios-instructions" ||
+      result === "manual-instructions" ||
+      result === "already-installed"
+    ) {
+      setInstallHint({ open: true, variant: result });
+    }
+  }, [requestInstall]);
 
   useEffect(() => {
     if (!isMenuOpen) return;
@@ -235,6 +278,7 @@ export function MobileMenu() {
                         item={item}
                         isActive={isActivePath(pathname, item.href)}
                         onNavigate={close}
+                        onInstallApp={handleInstallApp}
                       />
                     ))}
                   </motion.ul>
@@ -251,6 +295,11 @@ export function MobileMenu() {
           </motion.aside>
         </div>
       )}
+      <InstallAppHintDialog
+        open={installHint.open}
+        variant={installHint.variant}
+        onClose={() => setInstallHint((s) => ({ ...s, open: false }))}
+      />
     </AnimatePresence>
   );
 }

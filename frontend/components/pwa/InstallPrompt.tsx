@@ -5,16 +5,12 @@ import { Download, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/design-system";
 import { PWA_CONFIG, PWA_STORAGE_KEYS } from "@/lib/pwa/config";
-
-interface BeforeInstallPromptEvent extends Event {
-  prompt: () => Promise<void>;
-  userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
-}
+import { usePwaInstall } from "@/hooks/usePwaInstall";
+import { usePwaInstallStore } from "@/store/usePwaInstallStore";
 
 export function InstallPrompt() {
-  const [deferred, setDeferred] = useState<BeforeInstallPromptEvent | null>(
-    null
-  );
+  const deferred = usePwaInstallStore((s) => s.deferred);
+  const { requestInstall } = usePwaInstall();
   const [dismissed, setDismissed] = useState(true);
   const [installing, setInstalling] = useState(false);
 
@@ -24,46 +20,25 @@ export function InstallPrompt() {
       setDismissed(true);
       return;
     }
-
-    const onBeforeInstall = (e: Event) => {
-      e.preventDefault();
-      setDeferred(e as BeforeInstallPromptEvent);
-      setDismissed(false);
-    };
-
-    const onInstalled = () => {
-      setDeferred(null);
-      setDismissed(true);
-    };
-
-    window.addEventListener("beforeinstallprompt", onBeforeInstall);
-    window.addEventListener("appinstalled", onInstalled);
-
-    return () => {
-      window.removeEventListener("beforeinstallprompt", onBeforeInstall);
-      window.removeEventListener("appinstalled", onInstalled);
-    };
-  }, []);
+    if (deferred) setDismissed(false);
+  }, [deferred]);
 
   const dismiss = useCallback(() => {
     localStorage.setItem(PWA_STORAGE_KEYS.installDismissed, "1");
     setDismissed(true);
-    setDeferred(null);
   }, []);
 
   const install = useCallback(async () => {
     if (!deferred) return;
     setInstalling(true);
     try {
-      await deferred.prompt();
-      const { outcome } = await deferred.userChoice;
-      if (outcome === "accepted") dismiss();
+      const result = await requestInstall();
+      if (result === "prompted") dismiss();
       else setDismissed(false);
     } finally {
       setInstalling(false);
-      setDeferred(null);
     }
-  }, [deferred, dismiss]);
+  }, [deferred, dismiss, requestInstall]);
 
   if (dismissed || !deferred) return null;
 
