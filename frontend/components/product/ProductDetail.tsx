@@ -114,7 +114,7 @@ export function ProductDetail({ product, related }: ProductDetailProps) {
             placeholder="Ex: cor da alça, presente, prazo desejado..."
             value={observations}
             onChange={(e) => setObservations(e.target.value)}
-            hint="Opcional — também enviadas no WhatsApp ao personalizar"
+            hint="Opcional"
           />
         </div>
 
@@ -131,7 +131,7 @@ export function ProductDetail({ product, related }: ProductDetailProps) {
           </Button>
 
           <p className="text-center font-body text-[11px] leading-relaxed text-maia-light">
-            A personalização é feita diretamente com nossa equipe via WhatsApp —
+            A personalização é feita diretamente com nossa equipe via WhatsApp -
             monograma, cores e detalhes sob medida.
           </p>
 
