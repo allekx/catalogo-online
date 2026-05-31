@@ -7,7 +7,7 @@ import { syncProductImages } from "../product-images";
 import {
   serializeAdminProduct,
 } from "../serializers/product";
-import { slugify, uniqueProductSlug } from "../slug";
+import { slugify, uniqueCategorySlug, uniqueProductSlug } from "../slug";
 import { apiError, json } from "../http";
 import { requireDatabase } from "../guards";
 import { revalidateCatalogData } from "../revalidate-catalog";
@@ -328,13 +328,29 @@ export async function adminCreateCategory(request: NextRequest) {
       };
     if (!name?.trim()) return apiError("Nome obrigatório", 400);
 
+    const maxOrder = await prisma.category.aggregate({
+      where: notDeleted,
+      _max: { sortOrder: true },
+    });
+    const nextSortOrder = (maxOrder._max.sortOrder ?? -1) + 1;
+    const trimmedName = name.trim();
+    const categorySlug =
+      slug?.trim()
+        ? slugify(slug)
+        : await uniqueCategorySlug(trimmedName, async (candidate) => {
+            const found = await prisma.category.findFirst({
+              where: { slug: candidate, ...notDeleted },
+            });
+            return Boolean(found);
+          });
+
     const category = await prisma.category.create({
       data: {
-        name: name.trim(),
-        slug: slug?.trim() ? slugify(slug) : slugify(name),
+        name: trimmedName,
+        slug: categorySlug,
         imageUrl: imageUrl ?? null,
         description: description?.trim() ?? null,
-        sortOrder: sortOrder ?? 0,
+        sortOrder: sortOrder ?? nextSortOrder,
       },
     });
     revalidateCatalogData();
@@ -347,6 +363,11 @@ export async function adminCreateCategory(request: NextRequest) {
 
 export async function adminUpdateCategory(id: string, request: NextRequest) {
   try {
+    const existing = await prisma.category.findFirst({
+      where: { id, ...notDeleted },
+    });
+    if (!existing) return apiError("Categoria não encontrada", 404);
+
     const { name, slug, imageUrl, sortOrder, description, active } =
       (await request.json()) as {
         name?: string;
@@ -356,11 +377,25 @@ export async function adminUpdateCategory(id: string, request: NextRequest) {
         description?: string;
         active?: boolean;
       };
+
+    let nextSlug: string | undefined;
+    if (typeof slug === "string" && slug.trim()) {
+      nextSlug = slugify(slug);
+    } else if (typeof name === "string" && name.trim() && name.trim() !== existing.name) {
+      const trimmedName = name.trim();
+      nextSlug = await uniqueCategorySlug(trimmedName, async (candidate) => {
+        const found = await prisma.category.findFirst({
+          where: { slug: candidate, ...notDeleted, NOT: { id } },
+        });
+        return Boolean(found);
+      });
+    }
+
     const category = await prisma.category.update({
       where: { id },
       data: {
-        ...(name ? { name: name.trim() } : {}),
-        ...(slug ? { slug: slugify(slug) } : {}),
+        ...(typeof name === "string" ? { name: name.trim() } : {}),
+        ...(nextSlug ? { slug: nextSlug } : {}),
         ...(imageUrl !== undefined ? { imageUrl } : {}),
         ...(description !== undefined ? { description } : {}),
         ...(sortOrder != null ? { sortOrder } : {}),
@@ -372,6 +407,35 @@ export async function adminUpdateCategory(id: string, request: NextRequest) {
   } catch (error) {
     console.error("[admin/categories update]", error);
     return apiError("Erro ao atualizar categoria", 500);
+  }
+}
+
+export async function adminReorderCategories(request: NextRequest) {
+  const db = requireDatabase();
+  if (db) return db;
+
+  try {
+    const { order } = (await request.json()) as {
+      order?: { id: string; sortOrder: number }[];
+    };
+    if (!Array.isArray(order) || order.length === 0) {
+      return apiError("Ordem inválida", 400);
+    }
+
+    await prisma.$transaction(
+      order.map(({ id, sortOrder }) =>
+        prisma.category.update({
+          where: { id },
+          data: { sortOrder },
+        })
+      )
+    );
+
+    revalidateCatalogData();
+    return json({ success: true });
+  } catch (error) {
+    console.error("[admin/categories reorder]", error);
+    return apiError("Erro ao reordenar categorias", 500);
   }
 }
 

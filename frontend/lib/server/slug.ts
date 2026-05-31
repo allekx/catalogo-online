@@ -8,11 +8,12 @@ export function slugify(text: string): string {
     .replace(/^-+|-+$/g, "");
 }
 
-export async function uniqueProductSlug(
+export async function uniqueSlug(
   name: string,
+  fallback: string,
   findSlug: (slug: string) => Promise<boolean>
 ): Promise<string> {
-  const base = slugify(name) || "produto";
+  const base = slugify(name) || fallback;
   let slug = base;
   let n = 1;
   while (await findSlug(slug)) {
@@ -20,4 +21,18 @@ export async function uniqueProductSlug(
     n += 1;
   }
   return slug;
+}
+
+export async function uniqueProductSlug(
+  name: string,
+  findSlug: (slug: string) => Promise<boolean>
+): Promise<string> {
+  return uniqueSlug(name, "produto", findSlug);
+}
+
+export async function uniqueCategorySlug(
+  name: string,
+  findSlug: (slug: string) => Promise<boolean>
+): Promise<string> {
+  return uniqueSlug(name, "categoria", findSlug);
 }

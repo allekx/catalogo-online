@@ -94,6 +94,11 @@ export const adminApi = {
       request<{ success: boolean }>(`/api/admin/categories/${id}`, {
         method: "DELETE",
       }),
+    reorder: (order: { id: string; sortOrder: number }[]) =>
+      request<{ success: boolean }>("/api/admin/categories/reorder", {
+        method: "PATCH",
+        body: JSON.stringify({ order }),
+      }),
   },
 
   orders: {

@@ -2,8 +2,13 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
-import { ImagePlus, Plus, Trash2 } from "lucide-react";
+import { ImagePlus, Plus } from "lucide-react";
+import { AdminCategoryList } from "@/components/admin/categories/AdminCategoryList";
 import { adminApi, ApiError, type AdminCategory } from "@/lib/admin/api";
+
+function sortByOrder(rows: AdminCategory[]) {
+  return [...rows].sort((a, b) => a.sortOrder - b.sortOrder);
+}
 
 export default function CategoriesPage() {
   const [categories, setCategories] = useState<AdminCategory[]>([]);
@@ -20,7 +25,7 @@ export default function CategoriesPage() {
     setError("");
     adminApi.categories
       .list()
-      .then(setCategories)
+      .then((rows) => setCategories(sortByOrder(rows)))
       .catch((err) => {
         setError(
           err instanceof ApiError ? err.message : "Erro ao carregar categorias"
@@ -90,7 +95,9 @@ export default function CategoriesPage() {
       const imageUrl = await uploadImage(file);
       const updated = await adminApi.categories.update(id, { imageUrl });
       setCategories((prev) =>
-        prev.map((c) => (c.id === id ? { ...c, ...updated } : c))
+        sortByOrder(
+          prev.map((c) => (c.id === id ? { ...c, ...updated } : c))
+        )
       );
     } catch (err) {
       setError(
@@ -127,7 +134,10 @@ export default function CategoriesPage() {
     <div>
       <header className="mb-6">
         <h1 className="font-display text-2xl font-bold">Categorias</h1>
-        <p className="text-sm text-maia-muted">Organize o catálogo por coleções</p>
+        <p className="text-sm text-maia-muted">
+          Organize o catálogo por coleções. Arraste pela barrinha para ordenar; o
+          catálogo segue a mesma ordem.
+        </p>
       </header>
 
       {error && (
@@ -201,52 +211,15 @@ export default function CategoriesPage() {
       {loading ? (
         <div className="admin-card text-sm text-maia-muted">Carregando...</div>
       ) : (
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {categories.map((c) => (
-            <div key={c.id} className="admin-card flex items-center gap-3">
-              <label
-                className="relative flex h-14 w-14 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-xl bg-maia-nude/40 text-maia-muted ring-1 ring-maia-text/5 hover:ring-maia-orange/40"
-                title="Alterar foto"
-              >
-                {c.imageUrl ? (
-                  <Image
-                    src={c.imageUrl}
-                    alt=""
-                    fill
-                    className="object-cover"
-                    unoptimized
-                  />
-                ) : (
-                  <ImagePlus className="h-5 w-5" />
-                )}
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="sr-only"
-                  disabled={updatingId === c.id}
-                  onChange={(e) => {
-                    handleUpdateImage(c.id, e.target.files);
-                    e.target.value = "";
-                  }}
-                />
-              </label>
-              <div className="min-w-0 flex-1">
-                <p className="truncate font-medium">{c.name}</p>
-                <p className="text-xs text-maia-muted">
-                  /{c.slug} · {c._count?.products ?? 0} produto(s)
-                  {updatingId === c.id ? " · enviando foto…" : ""}
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => handleDelete(c.id, c.name)}
-                className="btn-danger shrink-0 !px-2.5 !py-2"
-              >
-                <Trash2 className="h-4 w-4" />
-              </button>
-            </div>
-          ))}
-        </div>
+        <AdminCategoryList
+          categories={categories}
+          onCategoriesChange={setCategories}
+          onError={setError}
+          onReload={load}
+          uploadingId={updatingId}
+          onUploadImage={handleUpdateImage}
+          onDelete={handleDelete}
+        />
       )}
     </div>
   );
