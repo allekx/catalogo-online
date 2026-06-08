@@ -20,12 +20,14 @@ interface MainLayoutProps {
 export function MainLayout({ children }: MainLayoutProps) {
   const pathname = usePathname();
   const isAdminArea = pathname.startsWith("/admin");
+  const isBioPage = pathname.startsWith("/bio");
+  const isStandalonePage = isAdminArea || isBioPage;
   const itemCount = useCartStore((s) => s.itemCount);
   const showCartBar =
-    !isAdminArea && itemCount > 0 && pathname !== ROUTES.cart;
+    !isStandalonePage && itemCount > 0 && pathname !== ROUTES.cart;
 
   useEffect(() => {
-    if (isAdminArea) {
+    if (isStandalonePage) {
       delete document.body.dataset.cartBar;
       return;
     }
@@ -33,13 +35,13 @@ export function MainLayout({ children }: MainLayoutProps) {
     return () => {
       delete document.body.dataset.cartBar;
     };
-  }, [showCartBar, isAdminArea]);
+  }, [showCartBar, isStandalonePage]);
 
   useEffect(() => {
     releaseAllBodyScrollLocks();
   }, [pathname]);
 
-  if (isAdminArea) {
+  if (isStandalonePage) {
     return <>{children}</>;
   }
 

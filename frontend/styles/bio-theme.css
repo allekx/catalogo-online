@@ -1,0 +1,62 @@
+/**
+ * Estilos exclusivos da /bio — importados só em app/bio/layout.tsx
+ */
+.bio-page {
+  --bio-cream: #fff9f5;
+  --bio-cream-warm: #f7e6da;
+  --bio-cream-blush: #e9c7b5;
+  --bio-card: #fffcfa;
+  --bio-card-elevated: #ffffff;
+  --bio-text: #222222;
+  --bio-text-muted: #666666;
+  --bio-text-soft: #999999;
+  --bio-shadow-soft: 0 10px 28px -10px rgba(34, 34, 34, 0.06);
+  --bio-shadow-card: 0 8px 22px -8px rgba(34, 34, 34, 0.05);
+  --bio-shadow-cta: 0 12px 32px -10px
+    color-mix(in srgb, var(--bio-primary, #ff6b00) 32%, transparent);
+  --bio-shadow-icon: 0 6px 18px -6px rgba(34, 34, 34, 0.08);
+  --bio-radius-card: 1.125rem;
+  --bio-radius-pill: 9999px;
+  color: var(--bio-text);
+}
+
+.bio-shadow-soft {
+  box-shadow: var(--bio-shadow-soft);
+}
+
+.bio-card-surface {
+  border-radius: var(--bio-radius-card);
+  background-color: var(--bio-card);
+  box-shadow: var(--bio-shadow-card);
+}
+
+.bio-card-cta {
+  border-radius: var(--bio-radius-card);
+  background-color: var(--bio-primary, #ff6b00);
+  box-shadow: var(--bio-shadow-cta);
+}
+
+.bio-icon-chip {
+  display: flex;
+  height: 2.75rem;
+  width: 2.75rem;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--bio-radius-pill);
+  background-color: color-mix(
+    in srgb,
+    var(--bio-primary, #ff6b00) 9%,
+    transparent
+  );
+  color: var(--bio-primary, #ff6b00);
+  border: 1px solid
+    color-mix(in srgb, var(--bio-primary, #ff6b00) 14%, transparent);
+}
+
+.bio-icon-chip--on-cta {
+  background-color: #ffffff;
+  color: var(--bio-primary, #ff6b00);
+  box-shadow: 0 2px 8px rgba(34, 34, 34, 0.06);
+  border: none;
+}
