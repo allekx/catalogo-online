@@ -1,6 +1,5 @@
 "use client";
 
-import "@/styles/bio-theme.css";
 import { motion } from "framer-motion";
 import { buildBioViewModel } from "@/lib/bio-view";
 import type { BioPageData } from "@/types/bio";

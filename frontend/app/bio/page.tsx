@@ -1,17 +1,7 @@
 import type { Metadata } from "next";
-import dynamic from "next/dynamic";
+import { BioPageView } from "@/components/bio/BioPageView";
 import { buildPageMetadata } from "@/lib/metadata";
 import { getBioPageData } from "@/lib/bio-data";
-
-const BioPageView = dynamic(
-  () =>
-    import("@/components/bio/BioPageView").then((mod) => mod.BioPageView),
-  {
-    loading: () => (
-      <div className="min-h-dvh bg-[#FFF9F5]" aria-label="Carregando bio" />
-    ),
-  }
-);
 
 export const revalidate = 300;
 

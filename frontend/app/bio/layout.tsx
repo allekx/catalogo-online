@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import "@/styles/bio-theme.css";
 
 export const metadata: Metadata = {
   robots: { index: true, follow: true },
